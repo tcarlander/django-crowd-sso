@@ -65,10 +65,8 @@ class CrowdBackend(ModelBackend):
         user.first_name = content_parsed['first_name']
         user.last_name = content_parsed['last_name']
         user.is_active = True
-        if 'superuser' in crowd_config and crowd_config['superuser']:
-            user.is_superuser = crowd_config['superuser']
-        if 'staffuser' in crowd_config and crowd_config['staffuser']:
-            user.is_staff = crowd_config['staffuser']
+        user.is_superuser = crowd_config.get('superuser', False)
+        user.is_staff = crowd_config.get('staffuser', False)
         user.save()
         return user
 
