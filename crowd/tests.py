@@ -62,7 +62,7 @@ class CrowdBackendAuthTest(TestCase):
         """
         users_existed = User.objects.all().count() # usually == 0, but who knows, which fixture they will use... =)
         user_created = self.backend._create_new_user_from_crowd_response(username=self.username,
-            password=self.password, content=self.test_crowd_xml_response, crowd_config={})
+            content=self.test_crowd_xml_response, crowd_config={})
         self.assertEqual(users_existed + 1, User.objects.all().count())
         self.assertEqual(user_created.username, self.username)
         self.assertEqual(user_created.email, self.email)
@@ -74,6 +74,6 @@ class CrowdBackendAuthTest(TestCase):
         A little unit test for a service method
         """
         self.assertEqual(self.backend._find_existing_user(self.username), None)
-        user = User.objects.create_user(username=self.username, email=self.email, password=self.password)
-        self.assertNotEqual(self.backend._find_existing_user('not_a_' + self.username   ), None)
+        user = User.objects.create_user(username=self.username, email=self.email)
+        self.assertNotEqual(self.backend._find_existing_user('not_a_' + self.username), None)
         self.assertEqual(self.backend._find_existing_user(self.username).pk, user.pk)
