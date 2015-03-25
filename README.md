@@ -41,6 +41,10 @@ AUTHENTICATION_BACKENDS = (
 )
 ```
 
+Note that if you only want to use Crowd authentication, you may want to put the crowd module _first_ in the
+AUTHENTICATION_BACKENDS list to make sure you always start with crowd authentication before falling over to
+a local account.
+
 Credits:
 ========
 

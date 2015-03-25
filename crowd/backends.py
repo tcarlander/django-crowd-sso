@@ -19,14 +19,12 @@ class CrowdBackend(ModelBackend):
         user = self._find_existing_user(username)
         resp, content = self._call_crowd(username, password, crowd_config)
         if resp['status'] == '200':
-            if user:
-                user.set_password(password)
-            else:
-                user = self._create_new_user_from_crowd_response(username, password, content, crowd_config)
+            if not user:
+                user = self._create_new_user_from_crowd_response(username, content, crowd_config)
             return user
         else:
             return None
-        
+
     def _get_crowd_config(self):
         """
         Returns CROWD-related project settings. Private service method.
@@ -56,20 +54,19 @@ class CrowdBackend(ModelBackend):
         url = crowd_config['url'] + ('/usermanagement/latest/authentication?username=%s' % (username,))
         resp, content = h.request(url, "POST", body=body, headers={'content-type': 'text/xml'})
         return resp, content # sorry for this verbosity, but it gives a better understanding
-    
-    def _create_new_user_from_crowd_response(self, username, password, content, crowd_config):
+
+    def _create_new_user_from_crowd_response(self, username, content, crowd_config):
         """
         Creating a new user in django auth database basing on information provided by CROWD. Private service method.
         """
         content_parsed = self._parse_crowd_response(content)
-        user = User.objects.create_user(username, content_parsed['email'], password)
+        user = User.objects.create_user(username, content_parsed['email'])
+        user.set_unusable_password()
         user.first_name = content_parsed['first_name']
         user.last_name = content_parsed['last_name']
         user.is_active = True
-        if 'superuser' in crowd_config and crowd_config['superuser']:
-            user.is_superuser = crowd_config['superuser']
-        if 'staffuser' in crowd_config and crowd_config['staffuser']:
-            user.is_staff = crowd_config['staffuser']
+        user.is_superuser = crowd_config.get('superuser', False)
+        user.is_staff = crowd_config.get('staffuser', False)
         user.save()
         return user
 
