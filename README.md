@@ -26,7 +26,7 @@ CROWD = {
     'app_name': 'your-registered-crowd-application-name',   # appname, registered with CROWD
     'password': 'application-password',                     # correct password for provided appname
     'superuser': True,                                      # if set makes CROWD-authorized users superusers;
-                                                            # BE CAREFUL WITH THIS PARAMETER!
+    'staffuser': True,                                      # BE CAREFUL WITH THIS PARAMETER!
 }
 ```
 
