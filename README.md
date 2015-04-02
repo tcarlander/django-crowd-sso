@@ -4,22 +4,29 @@ Simple Attlasian CROWD authentication backend for Django
 
 Installation
 ============
+
 ```
 pip install django-crowd
 ```
+
 Also, to install development version you can try this:
+
 ```
 pip install git+git://github.com/gbezyuk/django-crowd.git
 ```
+
 Or this:
+
 ```
 pip install -e git+git://github.com/gbezyuk/django-crowd.git#egg=Django-Crowd
 ```
+
 You could also simply copy this repository crowd folder to your project.
 
 Configuration:
 ==============
 Put a CROWD configuration in your `settings.py`:
+
 ```
 CROWD = {
     'url': 'http://your.crowd.url:port/crowd/rest',         # your CROWD rest API url
