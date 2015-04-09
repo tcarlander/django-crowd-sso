@@ -3,31 +3,58 @@ from django.conf import settings
 from xml.dom.minidom import parseString
 from django.contrib.auth.backends import ModelBackend
 import requests, json
+from importlib import import_module
+from django.conf import settings
+SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
+import logging
 
+logger = logging.getLogger(__name__)
 
 class CrowdBackend(ModelBackend):
     """
     This is the Attlasian CROWD (JIRA) Authentication Backend for Django
     Have a nice day! Hope you will never need opening this file looking for a bug =)
     """
+    
+    
+    myCookie =''
+    theip=''
+    def get_cookie():
+        return CrowdBackend.myCookie
+    def destroy_cookie():
+        CrowdBackend.myCookie=''
+    def set_cookie(cookie):
+        s = SessionStore()
+        s['CrowdToken'] = cookie
+        CrowdBackend.myCookie=cookie
+    def get_ip():
+        return CrowdBackend.theip
+    def destroy_ip():
+        CrowdBackend.theip=''
+    def set_ip(ip):
+        CrowdBackend.theip=ip
+    
+    
     def authenticate(self, username, password):
         """
         Main authentication method
         """
+        logger.debug("Authenticate")
         crowd_config = self._get_crowd_config()
         if not crowd_config:
             return None
-#        try:
-        user = self._find_existing_user(username)
-        resp, content = self._call_crowd_session(username, password, crowd_config)
-        if resp == 201:
-            if not user:
-                user = self._create_new_user_from_crowd_response(username, crowd_config)
-            return user
-        else:
+        try:
+            user = self._find_existing_user(username)
+            resp,session_crowd = self._call_crowd_session(username, password, crowd_config)
+            CrowdBackend.set_cookie(session_crowd)
+            if resp == 201:
+                if not user:
+                    user = self._create_new_user_from_crowd_response(username, crowd_config)
+                return user
+            else:
+                return None
+        except:
             return None
- #       except:
- #           return None
             
 
 
@@ -51,26 +78,21 @@ class CrowdBackend(ModelBackend):
             return users[0]
 
 
-
     def _call_crowd_session(self, username, password, crowd_config):
         """
         Calls CROWD webservice. Private service method.
         """
+        logger.debug(self.theip)
         url = crowd_config['url'] + ('/usermanagement/latest/session.json') 
-        json_object = {'username' : username ,'password' : password ,'validation-factors' : {'validationFactors' : [{'name' : 'remote_address','value' : '127.0.0.1'}]}}
-        print( json_object)
+        json_object = {'username' : username ,'password' : password ,'validation-factors' : {'validationFactors' : [{'name' : 'remote_address','value' : crowd_config['validation']}]}}
         r = requests.post(url, auth=(crowd_config['app_name'], crowd_config['password']),data=json.dumps(json_object),headers={'content-type': 'application/json','Accept': 'application/json'})
-        resp = r.status_code
-        print (resp)
-        print(r.json())
-        return resp, None # sorry for this verbosity, but it gives a better understanding
+        return r.status_code,r.json()['token']
 
 
     def _create_new_user_from_crowd_response(self, username, crowd_config):
         """
         Creating a new user in django auth database basing on information provided by CROWD. Private service method.
         """
-        
         url = crowd_config['url'] + ('/usermanagement/latest/user.json?username=%s' % (username,))
         r = requests.get(url, auth=(crowd_config['app_name'], crowd_config['password']))
         content_parsed = r.json()

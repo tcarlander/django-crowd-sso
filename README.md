@@ -2,26 +2,7 @@ django-crowd
 ============
 Simple Attlasian CROWD authentication backend for Django
 
-Installation
-============
 
-```
-pip install django-crowd
-```
-
-Also, to install development version you can try this:
-
-```
-pip install git+git://github.com/gbezyuk/django-crowd.git
-```
-
-Or this:
-
-```
-pip install -e git+git://github.com/gbezyuk/django-crowd.git#egg=Django-Crowd
-```
-
-You could also simply copy this repository crowd folder to your project.
 
 Configuration:
 ==============
@@ -34,21 +15,25 @@ CROWD = {
     'password': 'application-password',                     # correct password for provided appname
     'superuser': True,                                      # if set makes CROWD-authorized users superusers;
     'staffuser': True,                                      # BE CAREFUL WITH THIS PARAMETER!
+    'validation':'10.11.40.34',                             # The ipaddress the Crowd server is responding to (
 }
 ```
 
-Also add `crowd.CrowdBackend` in your `AUTHENTICATION_BACKENDS` settings list.
-Better to put it last for minimal collision risk:
+Add `crowd.CrowdBackend` in your `AUTHENTICATION_BACKENDS` settings list.
+Put it first so that password are only kept in CROWD:
 
 ```
 AUTHENTICATION_BACKENDS = (
     # ...
-    'django.contrib.auth.backends.ModelBackend',
     'crowd.backends.CrowdBackend'
+    'django.contrib.auth.backends.ModelBackend',
 )
 ```
 
-Note that if you only want to use Crowd authentication, you may want to put the crowd module _first_ in the
+
+Add     'crowd.middleware.CookieMiddleware' to the Middleware 
+
+
 AUTHENTICATION_BACKENDS list to make sure you always start with crowd authentication before falling over to
 a local account.
 
@@ -58,3 +43,5 @@ Credits:
 Originally written for Django v1.3 by Konstantin J. Volkov <konstantin-j-volkov@yandex.ru> at 12.07.2012
 
 Refactored, put together and tested with Django v1.4 by Grigoriy Beziuk <gbezyuk@gmail.com> at 27.08.2012
+
+Refactored and added SSO by Tobias Carlander <tobias.carlander@wfp.org>
