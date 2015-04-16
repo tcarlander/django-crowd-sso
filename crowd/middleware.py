@@ -56,7 +56,7 @@ class CookieMiddleware(object):
             except:
                 # If User not yet imported
                 crowd_config = CrowdBackend._get_crowd_config(self)
-                user = CrowdBackend._create_new_user_from_crowd_response(
+                user = CrowdBackend._create_user_from_crowd(
                        CrowdBackend, username, crowd_config)
                 user.backend = 'crowd.backends.CrowdBackend'
                 request.user = user
