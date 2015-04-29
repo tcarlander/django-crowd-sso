@@ -1,0 +1,6 @@
+*/*/*.py,cover
+*/*.py,cover
+*.py,cover
+*/tests/test_login.py,cover
+
+hello_crowd/tests/test_login.py,cover
