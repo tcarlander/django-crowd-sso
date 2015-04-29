@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from django.conf import settings
-from xml.dom.minidom import parseString
 from django.contrib.auth.backends import ModelBackend
 import requests
 import json
@@ -49,8 +48,6 @@ class CrowdBackend(ModelBackend):
 
         logger.debug("Authenticate")
         crowd_config = self._get_crowd_config()
-        if not crowd_config:
-            return None
         try:
             user = self._find_existing_user(username)
             resp, session_crowd = self._call_crowd_session(username,
@@ -58,7 +55,9 @@ class CrowdBackend(ModelBackend):
                                                            crowd_config)
             CrowdBackend.set_cookie(session_crowd)
             if resp == 201:
+                logger.debug("got response")
                 if not user:
+                    logger.debug("Create User")
                     user = self._create_user_from_crowd(username, crowd_config)
                 return user
             else:

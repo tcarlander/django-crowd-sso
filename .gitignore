@@ -21,3 +21,5 @@ parts**
 **~
 **.kate-swp
 **.directory
+
+*.py,cover

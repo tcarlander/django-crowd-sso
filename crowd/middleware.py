@@ -1,16 +1,12 @@
 from django.contrib.auth.models import User
 from django.conf import settings
-from xml.dom.minidom import parseString
 from django.contrib.auth import login, logout
 from datetime import datetime, timedelta
-from crowd.backends import CrowdBackend
+from .backends import CrowdBackend
 from importlib import import_module
 from django.conf import settings
 import logging
 import requests
-
-SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
-
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +22,7 @@ class CookieMiddleware(object):
 
     def process_request(self, request):
         self.cookie_config()
+        username = None
         try:
             CrowdBackend.set_ip(request.META['HTTP_X_FORWARDED_FOR'])
         except:
@@ -125,7 +122,7 @@ class CookieMiddleware(object):
                     crowd_config['url'], token, )
         r = requests.get(url, auth=(crowd_config['app_name'],
                          crowd_config['password']))
-        if r.status_code < 400:
+        if r.status_code < 300:
             content_parsed = r.json()
             return content_parsed['user']['name']
         else:
