@@ -7,7 +7,7 @@ from importlib import import_module
 from django.conf import settings
 import logging
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
-
+my_timeout = 5
 
 logger = logging.getLogger(__name__)
 
@@ -99,13 +99,16 @@ class CrowdBackend(ModelBackend):
                              'value': crowd_config['validation']}
                              ]}
                        }
-        r = requests.post(url,
+        try:
+            r = requests.post(url,
                           auth=(crowd_config['app_name'],
                                 crowd_config['password']),
                           data=json.dumps(json_object),
                           headers={'content-type': 'application/json',
-                                   'Accept': 'application/json'})
-        return r.status_code, r.json()['token']
+                                   'Accept': 'application/json'},timeout=my_timeout)
+            return r.status_code, r.json()['token']
+        except:
+            return 500,None
 
     def _create_user_from_crowd(self, username, crowd_config):
         """
@@ -116,7 +119,7 @@ class CrowdBackend(ModelBackend):
         url = '%s/usermanagement/latest/user.json?username=%s' % (
             crowd_config['url'], username,)
         r = requests.get(url, auth=(crowd_config['app_name'],
-                         crowd_config['password']))
+                         crowd_config['password']),timeout=0.001)
         content_parsed = r.json()
         user = User.objects.create_user(username, content_parsed['email'])
         user.set_unusable_password()

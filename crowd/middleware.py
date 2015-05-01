@@ -7,7 +7,7 @@ from importlib import import_module
 from django.conf import settings
 import logging
 import requests
-
+my_timeout = 5
 logger = logging.getLogger(__name__)
 
 
@@ -76,69 +76,83 @@ class CookieMiddleware(object):
             sess = request.session['CrowdToken']
         except:
             sess = None
-        logger.debug("Session:%s" % (sess,))
-        if request.user.is_authenticated() and crowd_token is None:
-            if backend == 'crowd.backends.CrowdBackend':
-                self.cookie_config()
-                crowd_token = CrowdBackend.get_cookie()
-                username = self.get_the_user_from_token(crowd_token)
-                logger.debug("only crowd:%s" % (username,))
-                if username:
-                    response.set_cookie(self.cookie_name,
-                                        crowd_token,
-                                        max_age=None,
-                                        expires=None,
-                                        domain=self.cookie_domain,
-                                        path="/",
-                                        secure=self.cookie_secure)
-                    logger.debug(self.cookie_domain)
-                CrowdBackend.set_cookie(None)
+        logger.debug("Session:%s" % sess)
+        try:
+            if request.user.is_authenticated() and crowd_token is None:
+                if backend == 'crowd.backends.CrowdBackend':
+                    self.cookie_config()
+                    crowd_token = CrowdBackend.get_cookie()
+                    username = self.get_the_user_from_token(crowd_token)
+                    logger.debug("only crowd:%s" % (username,))
+                    if username:
+                        response.set_cookie(self.cookie_name,
+                                            crowd_token,
+                                            max_age=None,
+                                            expires=None,
+                                            domain=self.cookie_domain,
+                                            path="/",
+                                            secure=self.cookie_secure)
+                        logger.debug(self.cookie_domain)
+                    CrowdBackend.set_cookie(None)
 
-            if sess is not None:
-                logger.debug("Can i get here?")
-                logout(request)
+                if sess is not None:
+                    logger.debug("Can i get here?")
+                    logout(request)
 
-        else:
-            if (not(request.user.is_authenticated()) and
-                    crowd_token is not None):
-                self.invalidate_token(crowd_token)
-                CrowdBackend.destroy_cookie()
-                self.cookie_config()
-                response.delete_cookie(self.cookie_name,
-                                       domain=self.cookie_domain,
-                                       path="/")
+            else:
+                if (not(request.user.is_authenticated()) and
+                        crowd_token is not None):
+                    self.invalidate_token(crowd_token)
+                    CrowdBackend.destroy_cookie()
+                    self.cookie_config()
+                    response.delete_cookie(self.cookie_name,
+                                           domain=self.cookie_domain,
+                                           path="/")
+        except:
+            None
         return response
 
     def invalidate_token(self, token):
         crowd_config = CrowdBackend._get_crowd_config(self)
-        url = '%s/usermanagement/latest/session/%s.json' % (
-                    crowd_config['url'], token, )
-        r = requests.delete(url, auth=(crowd_config['app_name'],
-                            crowd_config['password']))
+        if token:
+            url = '%s/usermanagement/latest/session/%s.json' % (
+                        crowd_config['url'], token, )
+            try:
+                r = requests.delete(url, auth=(crowd_config['app_name'],
+                                crowd_config['password']),timeout=my_timeout)
+            except:
+                None
 
     def get_the_user_from_token(self, token):
-        crowd_config = CrowdBackend._get_crowd_config(self)
-        url = '%s/usermanagement/latest/session/%s.json' % (
-                    crowd_config['url'], token, )
-        r = requests.get(url, auth=(crowd_config['app_name'],
-                         crowd_config['password']))
-        if r.status_code < 300:
-            content_parsed = r.json()
-            return content_parsed['user']['name']
-        else:
+        try:
+            crowd_config = CrowdBackend._get_crowd_config(self)
+            url = '%s/usermanagement/latest/session/%s.json' % (
+                        crowd_config['url'], token, )
+            r = requests.get(url, auth=(crowd_config['app_name'],
+                             crowd_config['password']),timeout=my_timeout)
+            if r.status_code < 300:
+                content_parsed = r.json()
+                return content_parsed['user']['name']
+            else:
+                return None
+        except:
             return None
+
 
     def cookie_config(self):
         if self.cookie_configd:
             return
         else:
-            crowd_config = CrowdBackend._get_crowd_config(self)
-            url = '%s/usermanagement/latest/config/cookie.json' % (
-                    crowd_config['url'],)
-            r = requests.get(url, auth=(crowd_config['app_name'],
-                             crowd_config['password']))
-            content_parsed = r.json()
-            self.cookie_name = content_parsed['name']
-            self.cookie_domain = content_parsed['domain']
-            self.cookie_secure = content_parsed['secure']
-            self.cookie_configd = True
+            try: 
+                crowd_config = CrowdBackend._get_crowd_config(self)
+                url = '%s/usermanagement/latest/config/cookie.json' % (
+                        crowd_config['url'],)
+                r = requests.get(url, auth=(crowd_config['app_name'],
+                                 crowd_config['password']),timeout=my_timeout)
+                content_parsed = r.json()
+                self.cookie_name = content_parsed['name']
+                self.cookie_domain = content_parsed['domain']
+                self.cookie_secure = content_parsed['secure']
+                self.cookie_configd = True
+            except:
+                return
