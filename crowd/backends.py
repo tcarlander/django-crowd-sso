@@ -32,14 +32,6 @@ class CrowdBackend(ModelBackend):
         s['CrowdToken'] = cookie
         CrowdBackend.myCookie = cookie
 
-    def get_ip():
-        return CrowdBackend.theip
-
-    def destroy_ip():
-        CrowdBackend.theip = ''
-
-    def set_ip(ip):
-        CrowdBackend.theip = ip
 
     def authenticate(self, username, password):
         """
@@ -48,21 +40,19 @@ class CrowdBackend(ModelBackend):
 
         logger.debug("Authenticate")
         crowd_config = self._get_crowd_config()
-        try:
-            user = self._find_existing_user(username)
-            resp, session_crowd = self._call_crowd_session(username,
-                                                           password,
-                                                           crowd_config)
-            CrowdBackend.set_cookie(session_crowd)
-            if resp == 201:
-                logger.debug("got response")
-                if not user:
-                    logger.debug("Create User")
-                    user = self._create_user_from_crowd(username, crowd_config)
-                return user
-            else:
-                return None
-        except:
+        user = self._find_existing_user(username)
+        resp, session_crowd = self._call_crowd_session(username,
+                                                       password,
+                                                       crowd_config)
+        CrowdBackend.set_cookie(session_crowd)
+        #print(session_crowd)
+        if resp == 201:
+            logger.debug("got response")
+            if not user:
+                logger.debug("Create User")
+                user = self._create_user_from_crowd(username, crowd_config)
+            return user
+        else:
             return None
 
     def _get_crowd_config(self):
@@ -88,8 +78,7 @@ class CrowdBackend(ModelBackend):
         """
         Calls CROWD webservice. Private service method.
         """
-
-        logger.debug(self.theip)
+        
         url = crowd_config['url'] + ('/usermanagement/latest/session.json')
         json_object = {'username': username,
                        'password': password,
@@ -99,16 +88,17 @@ class CrowdBackend(ModelBackend):
                              'value': crowd_config['validation']}
                              ]}
                        }
-        try:
-            r = requests.post(url,
+        r = requests.post(url,
                           auth=(crowd_config['app_name'],
                                 crowd_config['password']),
                           data=json.dumps(json_object),
                           headers={'content-type': 'application/json',
                                    'Accept': 'application/json'},timeout=my_timeout)
-            return r.status_code, r.json()['token']
+        try:
+            token = r.json()['token']
         except:
-            return 500,None
+            token = None
+        return r.status_code, token
 
     def _create_user_from_crowd(self, username, crowd_config):
         """
@@ -119,7 +109,7 @@ class CrowdBackend(ModelBackend):
         url = '%s/usermanagement/latest/user.json?username=%s' % (
             crowd_config['url'], username,)
         r = requests.get(url, auth=(crowd_config['app_name'],
-                         crowd_config['password']),timeout=0.001)
+                         crowd_config['password']),timeout=my_timeout)
         content_parsed = r.json()
         user = User.objects.create_user(username, content_parsed['email'])
         user.set_unusable_password()
