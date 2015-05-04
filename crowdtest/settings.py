@@ -46,8 +46,8 @@ CROWD_DEV = {
     'group-import':False,
     'validation':'127.0.0.1',
 }
-CROWD = CROWD_DEV
-#CROWD = CROWD_PROD
+#CROWD = CROWD_DEV
+CROWD = CROWD_PROD
 
 # Application definition
 

@@ -2,6 +2,16 @@
 .DS_Store
 **.DS_Store
 *.pyc
+*/*/*.py,cover
+*/*.py,cover
 *.py,cover
+*/tests/test_login.py,cover
 db.sqlite3
 
+hello_crowd/tests/test_login.py,cover
+
+.coverage
+
+*.sqlite3
+
+django-crowd/
