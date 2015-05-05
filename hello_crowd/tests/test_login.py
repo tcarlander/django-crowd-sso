@@ -10,19 +10,19 @@ def mock_get_response(*args,**kwargs):
             
             url = args[0]
             logger.debug(url)
-            if url == 'http://login.dev.wfptha.org/crowd/rest/usermanagement/latest/config/cookie.json':
+            if 'config/cookie.json' in url:
                 #cookie config
                 status_code=201
                 json_return = {   "domain" : ".atlassian.com",   "name" : "crowd.token_key",   "secure" : False}
-            if url == 'http://login.dev.wfptha.org/crowd/rest/usermanagement/latest/session/VALID_TOKEN.json':
+            if 'session/VALID_TOKEN.json' in url:
                 #valid session for Admin
                 status_code=201
                 json_return = { 'user':{'name':'admin'}}
-            if url == 'http://login.dev.wfptha.org/crowd/rest/usermanagement/latest/session/INVLALID_TOKEN.json':
+            if 'session/INVLALID_TOKEN.json'  in url:
                 #Invalid session
                 status_code=400
                 json_return =  {"reason": "INVALID_SSO_TOKEN","message": "Failed to find entity of type [com.atlassian.crowd.model.token.Token] with identifier [WXnUorKLQk3YIeThJRE7ig00]"}
-            if url == 'http://login.dev.wfptha.org/crowd/rest/usermanagement/latest/user.json?username=admin':
+            if 'user.json?username=admin'  in url:
                 # User Details of admin
                 status_code=201
                 json_return = {
