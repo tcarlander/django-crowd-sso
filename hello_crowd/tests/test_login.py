@@ -82,15 +82,15 @@ def mock_local_user(username,password=''):
 class TestLogin(TestCase):
 
     def setUp(self):
-            patch_requests_post = patch('requests.post')
-            self.mock_requests_post = patch_requests_post.start()
-            self.addCleanup(patch_requests_post.stop)
-            patch_requests_get = patch('requests.get')
-            self.mock_requests_get = patch_requests_get.start()
-            self.addCleanup(patch_requests_get.stop)
-            patch_requests_delete = patch('requests.delete')
-            self.mock_requests_delete = patch_requests_delete.start()
-            self.addCleanup(patch_requests_delete.stop)
+        patch_requests_post = patch('requests.post')
+        self.mock_requests_post = patch_requests_post.start()
+        self.addCleanup(patch_requests_post.stop)
+        patch_requests_get = patch('requests.get')
+        self.mock_requests_get = patch_requests_get.start()
+        self.addCleanup(patch_requests_get.stop)
+        patch_requests_delete = patch('requests.delete')
+        self.mock_requests_delete = patch_requests_delete.start()
+        self.addCleanup(patch_requests_delete.stop)
             
             
             
@@ -98,6 +98,17 @@ class TestLogin(TestCase):
         response = self.client.get('/admin/')
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'],'http://testserver/admin/login/?next=/admin/')
+
+    def get_homepage_not_login(self):
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+
+    def get_homepage_not_login_req(self):
+        response = self.client.get('/l')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'],'http://testserver/admin/login/?next=/l')
+
+
 
     def test_login_sucsessful_with_existing_crowd_user(self):
         logger.debug("test 1")
@@ -124,8 +135,16 @@ class TestLogin(TestCase):
         self.assertEqual(response['Location'],'http://testserver/admin/')
         
         
-    def test_sso_login(self):
+    def test_sso_login_new_user(self):
         logger.debug("\ntest test_sso_login")
+        self.client.cookies['crowd.token_key']='VALID_TOKEN'
+        self.mock_requests_get.side_effect=mock_get_response        
+        response = self.client.get('/admin/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_sso_login_existing_user(self):
+        logger.debug("\ntest test_sso_login")
+        user = mock_local_user('admin')
         self.client.cookies['crowd.token_key']='VALID_TOKEN'
         self.mock_requests_get.side_effect=mock_get_response        
         response = self.client.get('/admin/')
@@ -151,7 +170,6 @@ class TestLogin(TestCase):
         response = self.client.get('/admin/')
         self.client.cookies['crowd.token_key']='INVLALID_TOKEN'
         response = self.client.get('/admin/')
-        print(response.content)
         self.assertEqual(response.status_code, 302)        
 
 
@@ -189,13 +207,15 @@ class TestLogin(TestCase):
         response = self.client.post('/admin/login/?next=/admin/',{'username':'admin2','password':'admin'})
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['Location'],'http://testserver/admin/')
-
         response = self.client.get('/admin/logout/')
         response = self.client.get('/admin/')
         self.assertEqual(response.status_code, 302)        
         
-        
-        
-        
-#    def test_user_not_exists(self):
-#        self.assertTrue(True)
+    def test_user_not_exists(self):
+        r=Mock()# No Such crowd User
+        r.status_code = 400
+        r.json.return_value = {"reason": "INVALID_USER_AUTHENTICATION",    "message": "Account with name <admin3> failed to authenticate: User <admin3> does not exist"}
+        response = self.client.post('/admin/login/?next=/admin/',{'username':'admin2','password':'admin'})
+        my_response = response.content.decode("utf-8")
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('Please enter the correct username and password for a staff account. Note that both fields may be case-sensitive.' in my_response)

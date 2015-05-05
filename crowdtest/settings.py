@@ -140,5 +140,9 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'DEBUG',
         },
+         'hello_crowd': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+        },
     }
 }
