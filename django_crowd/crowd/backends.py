@@ -18,21 +18,6 @@ class CrowdBackend(ModelBackend):
     Hope you will never need opening this file looking for a bug =)
     """
 
-    myCookie = ''
-    theip = ''
-
-    def get_cookie():
-        return CrowdBackend.myCookie
-
-    def destroy_cookie():
-        CrowdBackend.myCookie = ''
-
-    def set_cookie(cookie):
-        s = SessionStore()
-        s['CrowdToken'] = cookie
-        CrowdBackend.myCookie = cookie
-
-
     def authenticate(self, username, password):
         """
         Main authentication method
@@ -44,18 +29,18 @@ class CrowdBackend(ModelBackend):
         resp, session_crowd = self._call_crowd_session(username,
                                                        password,
                                                        crowd_config)
-        CrowdBackend.set_cookie(session_crowd)
-        #print(session_crowd)
         if resp == 201:
             logger.debug("got response")
+            print (session_crowd)
             if not user:
                 logger.debug("Create User")
                 user = self._create_user_from_crowd(username, crowd_config)
+            user.crowdtoken = session_crowd
             return user
         else:
             return None
-
-    def _get_crowd_config(self):
+    @staticmethod
+    def _get_crowd_config():
         """
         Returns CROWD-related project settings. Private service method.
         """
@@ -99,8 +84,9 @@ class CrowdBackend(ModelBackend):
         except:
             token = None
         return r.status_code, token
-
-    def _create_user_from_crowd(self, username, crowd_config):
+    
+    @staticmethod
+    def _create_user_from_crowd(username, crowd_config):
         """
         Creating a new user in django auth database basing on
         information provided by CROWD. Private service method.
