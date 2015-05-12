@@ -130,9 +130,9 @@ LOGGING = {
         },
     },
     'loggers': {
-        'django_crowd': {
+        'crowd': {
             'handlers': ['console'],
-            'level': 'ERROR',
+            'level': 'DEBUG',
         },
  'hello_crowd': {
             'handlers': ['console'],

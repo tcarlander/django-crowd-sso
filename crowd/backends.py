@@ -18,6 +18,7 @@ class CrowdBackend(ModelBackend):
     This is the Attlasian CROWD (JIRA) Authentication Backend for Django
     Hope you will never need opening this file looking for a bug =)
     """
+#http://login.dev.wfptha.org/crowd/rest/usermanagement/1/search?entity-type=user&restriction=email%3Dtobias.carlander%40wfp.org
 
     def authenticate(self, username, password):
         """
@@ -26,7 +27,10 @@ class CrowdBackend(ModelBackend):
 
         logger.debug("Authenticate")
         crowd_config = self._get_crowd_config()
+        username = self._get_username_from_email(username,crowd_config)
+        print(username)
         user = self._find_existing_user(username)
+        
         resp, session_crowd = self._call_crowd_session(username,
                                                        password,
                                                        crowd_config)
@@ -86,6 +90,20 @@ class CrowdBackend(ModelBackend):
         except:
             token = None
         return r.status_code, token
+
+    @staticmethod
+    def _get_username_from_email(email,crowd_config):
+        print("Email Test")
+        url = '%s/usermanagement/latest/search.json?entity-type=user&restriction=email%%3D%s' % (crowd_config['url'], email,)
+        r = requests.get(url, auth=(crowd_config['app_name'],
+                         crowd_config['password']),timeout=my_timeout)
+        content_parsed = r.json()
+        try:
+             username = content_parsed['users'][0]['name']
+        except:
+             username = email
+        return username
+        
     
     @staticmethod
     def _create_user_from_crowd(username, crowd_config):
@@ -93,7 +111,7 @@ class CrowdBackend(ModelBackend):
         Creating a new user in django auth database basing on
         information provided by CROWD. Private service method.
         """
-
+        username = CrowdBackend._get_username_from_email(username,crowd_config)
         url = '%s/usermanagement/latest/user.json?username=%s' % (
             crowd_config['url'], username,)
         r = requests.get(url, auth=(crowd_config['app_name'],

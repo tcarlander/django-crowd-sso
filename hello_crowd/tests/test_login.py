@@ -12,9 +12,23 @@ logger = logging.getLogger(__name__)
 def mock_get_response(*args,**kwargs):
             
             url = args[0]
-            logger.debug(url)
+            print(url)
             status_code =0
-            json_return = {}
+            #json_return = {}
+            if 'search.json?entity-type=user&restriction=email' in url:
+                print('email check')
+                status_code = 200
+                if 'search.json?entity-type=user&restriction=email%3Dadmin@test.com'in url:
+                    print("Hit")
+                    json_return = {"expand": "user","users": [{"link": {"href": "http://login.dev.wfptha.org/crowd/rest/usermanagement/1/user?username=tobias.carlander","rel": "self"},
+                                            "name": "admin"}]}
+                else:
+                    print("Miss")
+                    json_return = {
+                                        "expand": "user",
+                                        "users": []
+                                    }
+
             if 'config/cookie.json' in url:
                 #cookie config
                 status_code=201
@@ -62,6 +76,7 @@ def mock_get_response(*args,**kwargs):
                                 "display-name": "Admin Administrator",
                                 "email": "bordin.suetrong@wfp.org"
                             }
+
 
             rg=Mock()
             rg.status_code=status_code
@@ -145,6 +160,22 @@ class TestLogin(TestCase):
         self.assertEqual(response['Location'],'http://testserver/admin/')
         response2 = self.client.get('/admin/')
         self.assertEqual(response2.status_code, 200)
+
+
+    def test_login_sucsessful_with_existing_crowd_user_using_email(self):
+        logger.debug("Email Login")
+        r=Mock()
+        r.status_code = 201
+        r.json.return_value = {   "token" : "VALID_TOKEN"}
+        user = mock_local_user('admin')
+        self.mock_requests_post.return_value = r
+        self.mock_requests_get.side_effect=mock_get_response
+        response = self.client.post('/admin/login/?next=/admin/',{'username':'admin@test.com','password':'55555555'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'],'http://testserver/admin/')
+        response2 = self.client.get('/admin/')
+        self.assertEqual(response2.status_code, 200)
+
     
     
     def test_login_sucsessful_with_non_existing_crowd_user(self):
@@ -159,7 +190,19 @@ class TestLogin(TestCase):
         self.assertEqual(response['Location'],'http://testserver/admin/')
         response2 = self.client.get('/admin/')
         self.assertEqual(response2.status_code, 200)
-        
+
+    def test_login_sucsessful_with_non_existing_crowd_user_using_email(self):
+        logger.debug("test 2 email")
+        self.mock_requests_get.side_effect=mock_get_response        
+        r=Mock()
+        r.status_code = 201
+        r.json.return_value = {   "token" : "VALID_TOKEN"}        
+        self.mock_requests_post.return_value = r 
+        response = self.client.post('/admin/login/?next=/admin/',{'username':'admin@test.com','password':'55555555'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'],'http://testserver/admin/')
+        response2 = self.client.get('/admin/')
+        self.assertEqual(response2.status_code, 200)
         
     def test_sso_login_new_user(self):
         logger.debug("\ntest test_sso_login")
@@ -219,12 +262,14 @@ class TestLogin(TestCase):
         user = mock_local_user('admin2')
         r=Mock()# No Such crowd User
         r.status_code = 400
+        self.mock_requests_get.side_effect=mock_get_response   
         r.json.return_value = {"reason": "INVALID_USER_AUTHENTICATION",    "message": "Account with name <admin3> failed to authenticate: User <admin3> does not exist"}
         response = self.client.post('/admin/login/?next=/admin/',{'username':'admin2','password':'admin'})
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['Location'],'http://testserver/admin/')
 
     def test_user_local_correct_logout(self):
+        self.mock_requests_get.side_effect=mock_get_response   
         user = mock_local_user('admin2')
         r=Mock()# No Such crowd User
         r.status_code = 400
@@ -237,6 +282,7 @@ class TestLogin(TestCase):
         self.assertEqual(response.status_code, 302)        
         
     def test_user_not_exists(self):
+        self.mock_requests_get.side_effect=mock_get_response   
         r=Mock()# No Such crowd User
         r.status_code = 400
         r.json.return_value = {"reason": "INVALID_USER_AUTHENTICATION",    "message": "Account with name <admin3> failed to authenticate: User <admin3> does not exist"}
