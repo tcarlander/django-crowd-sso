@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.contrib.auth import login, logout
 from datetime import datetime, timedelta
@@ -48,7 +49,8 @@ class CrowdMiddleware(object):
         if username:
             logger.debug("Check if User already there")
             try:
-                user = User.objects.get(username=username)
+                user_model = get_user_model()
+                user = user_model.objects.get(username=username)
             except User.DoesNotExist:
                 logger.debug("User not yet imported")
                 crowd_config = CrowdBackend._get_crowd_config()

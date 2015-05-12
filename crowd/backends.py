@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.contrib.auth.backends import ModelBackend
 import requests
@@ -53,7 +54,8 @@ class CrowdBackend(ModelBackend):
         """
         Finds an existing user with provided username. Private service method.
         """
-        users = User.objects.filter(username=username)
+        user_model = get_user_model()
+        users = user_model.objects.filter(username=username)
         if users.count() <= 0:
             return None
         else:
@@ -97,7 +99,8 @@ class CrowdBackend(ModelBackend):
         r = requests.get(url, auth=(crowd_config['app_name'],
                          crowd_config['password']),timeout=my_timeout)
         content_parsed = r.json()
-        user = User.objects.create_user(username, content_parsed['email'])
+        user_model = get_user_model()
+        user = user_model.objects.create_user(username, content_parsed['email'])
         user.set_unusable_password()
         user.first_name = content_parsed['first-name']
         user.last_name = content_parsed['last-name']

@@ -70,11 +70,11 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_crowd.crowd.middleware.CrowdMiddleware',
+    'crowd.middleware.CrowdMiddleware',
 )
 AUTHENTICATION_BACKENDS = (
     # ...
-    'django_crowd.crowd.backends.CrowdBackend',
+    'crowd.backends.CrowdBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
 ROOT_URLCONF = 'crowdtest.urls'
