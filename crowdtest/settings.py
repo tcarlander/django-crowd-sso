@@ -46,8 +46,8 @@ CROWD_DEV = {
     'group-import':False,
     'validation':'127.0.0.1',
 }
-#CROWD = CROWD_DEV
-CROWD = CROWD_PROD
+CROWD = CROWD_DEV
+#CROWD = CROWD_PROD
 
 # Application definition
 
@@ -70,7 +70,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_crowd.crowd.middleware.CookieMiddleware',
+    'django_crowd.crowd.middleware.CrowdMiddleware',
 )
 AUTHENTICATION_BACKENDS = (
     # ...
@@ -125,24 +125,19 @@ LOGGING = {
         },
     },
     'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': 'mysite.log',
-            'formatter': 'verbose'
-        },
         'console': {
             'class': 'logging.StreamHandler',
         },
     },
     'loggers': {
-        'django-crowd': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-        },
-         'hello_crowd': {
+        'django_crowd': {
             'handlers': ['console'],
             'level': 'ERROR',
         },
+ 'hello_crowd': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+        
     }
 }

@@ -1,5 +1,8 @@
 from django.test import TestCase
-from unittest.mock import patch, Mock
+try:
+    from unittest.mock import patch, Mock
+except:
+    from mock import patch, Mock
 from django.contrib.auth.models import User
 import logging
 
@@ -10,6 +13,8 @@ def mock_get_response(*args,**kwargs):
             
             url = args[0]
             logger.debug(url)
+            status_code =0
+            json_return = {}
             if 'config/cookie.json' in url:
                 #cookie config
                 status_code=201
@@ -18,6 +23,11 @@ def mock_get_response(*args,**kwargs):
                 #valid session for Admin
                 status_code=201
                 json_return = { 'user':{'name':'admin'}}
+            if 'session/None.json'  in url:
+                #Invalid session
+                status_code=400
+                json_return =  {"reason": "INVALID_SSO_TOKEN","message": "Failed to find entity of type [com.atlassian.crowd.model.token.Token] with identifier [WXnUorKLQk3YIeThJRE7ig00]"}
+
             if 'session/INVLALID_TOKEN.json'  in url:
                 #Invalid session
                 status_code=400
@@ -99,14 +109,26 @@ class TestLogin(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'],'http://testserver/admin/login/?next=/admin/')
 
-    def get_homepage_not_login(self):
+    def test_get_homepage_not_login(self):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
 
-    def get_homepage_not_login_req(self):
-        response = self.client.get('/l')
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'],'http://testserver/admin/login/?next=/l')
+    def test_get_homepage_not_login_req(self):
+        response1 = self.client.get('/l')
+        self.assertEqual(response1.status_code, 302)
+        self.assertEqual(response1['location'],'http://testserver/admin/login/?next=/l')
+        logger.debug("test 1")
+        r=Mock()
+        r.status_code = 201
+        r.json.return_value = {   "token" : "VALID_TOKEN"}
+        user = mock_local_user('admin')
+        self.mock_requests_post.return_value = r
+        self.mock_requests_get.side_effect=mock_get_response
+        response3 = self.client.post('/admin/login/?next=/l',{'username':'admin','password':'55555555'})
+        self.assertEqual(response3.status_code, 302)
+        self.assertEqual(response3['Location'],'http://testserver/l')
+        response2 = self.client.get('/l')
+        self.assertEqual(response2.status_code, 200)
 
 
 
@@ -121,6 +143,8 @@ class TestLogin(TestCase):
         response = self.client.post('/admin/login/?next=/admin/',{'username':'admin','password':'55555555'})
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['Location'],'http://testserver/admin/')
+        response2 = self.client.get('/admin/')
+        self.assertEqual(response2.status_code, 200)
     
     
     def test_login_sucsessful_with_non_existing_crowd_user(self):
@@ -133,6 +157,8 @@ class TestLogin(TestCase):
         response = self.client.post('/admin/login/?next=/admin/',{'username':'admin','password':'55555555'})
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['Location'],'http://testserver/admin/')
+        response2 = self.client.get('/admin/')
+        self.assertEqual(response2.status_code, 200)
         
         
     def test_sso_login_new_user(self):
@@ -143,7 +169,7 @@ class TestLogin(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_sso_login_existing_user(self):
-        logger.debug("\ntest test_sso_login")
+        logger.debug("\ntest test_sso_login_existing_user")
         user = mock_local_user('admin')
         self.client.cookies['crowd.token_key']='VALID_TOKEN'
         self.mock_requests_get.side_effect=mock_get_response        
@@ -184,8 +210,7 @@ class TestLogin(TestCase):
         response = self.client.get('/admin/')
         self.assertEqual(response.status_code, 200)
         response = self.client.get('/admin/logout/')
-        self.client.cookies['crowd.token_key']=response.cookies['crowd.token_key']
-        logger.debug(response.cookies['crowd.token_key'])
+        #self.client.cookies['crowd.token_key'].value=response.cookies['crowd.token_key'].value
         response = self.client.get('/admin/')
         self.assertEqual(response.status_code, 302)        
     
