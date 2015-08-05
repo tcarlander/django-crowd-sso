@@ -10,6 +10,7 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -26,28 +27,27 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
-CROWD_PROD = { 
-    'url': 'http://login.q.wfp.org/crowd/rest',         # your CROWD rest API url
-    'app_name': 'mdca-test',                            # appname, registered with CROWD
-    'password': 'mdca-test',                            # correct password for provided appname
-    'superuser': True,                                  # if set makes CROWD-authorized users superusers;
-    'staffuser': True,                                  # BE CAREFUL WITH THIS PARAMETER!
-    'group-import':False,
-    'validation':'10.11.40.34',
+CROWD_PROD = {
+    'url': 'http://login.q.wfp.org/crowd/rest',  # your CROWD rest API url
+    'app_name': 'mdca-test',  # appname, registered with CROWD
+    'password': 'mdca-test',  # correct password for provided appname
+    'superuser': True,  # if set makes CROWD-authorized users superusers;
+    'staffuser': True,  # BE CAREFUL WITH THIS PARAMETER!
+    'group-import': False,
+    'validation': '10.11.40.34',
 }
 
 CROWD_DEV = {
-    'url': 'http://login.dev.wfptha.org/crowd/rest',    # your CROWD rest API url
-    'app_name': 'toby-test',                            # appname, registered with CROWD
-    'password': 'toby-test',                            # correct password for provided appname
-    'superuser': True,                                  # if set makes CROWD-authorized users superusers;
-    'staffuser': True,                                  # BE CAREFUL WITH THIS PARAMETER!
-    'group-import':False,
-    'validation':'127.0.0.1',
+    'url': 'http://login.dev.wfptha.org/crowd/rest',  # your CROWD rest API url
+    'app_name': 'toby-test',  # appname, registered with CROWD
+    'password': 'toby-test',  # correct password for provided appname
+    'superuser': True,  # if set makes CROWD-authorized users superusers;
+    'staffuser': True,  # BE CAREFUL WITH THIS PARAMETER!
+    'group-import': False,
+    'validation': '127.0.0.1',
 }
-CROWD = CROWD_DEV
-#CROWD = CROWD_PROD
+# CROWD = CROWD_DEV
+CROWD = CROWD_PROD
 
 # Application definition
 
@@ -58,7 +58,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
     'hello_crowd',
 )
 
@@ -111,14 +111,13 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
-            'datefmt' : "%d/%b/%Y %H:%M:%S"
+            'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'datefmt': "%d/%b/%Y %H:%M:%S"
         },
         'simple': {
             'format': '%(levelname)s %(message)s'
@@ -134,10 +133,10 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'DEBUG',
         },
- 'hello_crowd': {
+        'hello_crowd': {
             'handlers': ['console'],
             'level': 'DEBUG',
         },
-        
+
     }
 }

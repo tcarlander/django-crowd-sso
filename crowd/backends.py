@@ -1,12 +1,12 @@
-from django.contrib.auth.models import User
-from django.contrib.auth import get_user_model
-from django.conf import settings
-from django.contrib.auth.backends import ModelBackend
-import requests
 import json
 from importlib import import_module
-from django.conf import settings
 import logging
+
+from django.contrib.auth import get_user_model
+from django.contrib.auth.backends import ModelBackend
+import requests
+from django.conf import settings
+
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 my_timeout = 5
 
@@ -18,25 +18,26 @@ class CrowdBackend(ModelBackend):
     This is the Attlasian CROWD (JIRA) Authentication Backend for Django
     Hope you will never need opening this file looking for a bug =)
     """
-#http://login.dev.wfptha.org/crowd/rest/usermanagement/1/search?entity-type=user&restriction=email%3Dtobias.carlander%40wfp.org
+# http://login.dev.wfptha.org/crowd/rest/usermanagement/1/search?entity-type=user&restriction=email%3Dtobias.carlander%40wfp.org
 
-    def authenticate(self, username, password):
+    def authenticate(self, username, password, **kwargs):
         """
         Main authentication method
+        :param **kwargs:
         """
 
         logger.debug("Authenticate")
         crowd_config = self._get_crowd_config()
-        username = self._get_username_from_email(username,crowd_config)
+        username = self._get_username_from_email(username, crowd_config)
         print(username)
         user = self._find_existing_user(username)
-        
+
         resp, session_crowd = self._call_crowd_session(username,
                                                        password,
                                                        crowd_config)
         if resp == 201:
             logger.debug("got response")
-            print (session_crowd)
+            print(session_crowd)
             if not user:
                 logger.debug("Create User")
                 user = self._create_user_from_crowd(username, crowd_config)
@@ -44,6 +45,7 @@ class CrowdBackend(ModelBackend):
             return user
         else:
             return None
+
     @staticmethod
     def _get_crowd_config():
         """
@@ -69,22 +71,22 @@ class CrowdBackend(ModelBackend):
         """
         Calls CROWD webservice. Private service method.
         """
-        
-        url = crowd_config['url'] + ('/usermanagement/latest/session.json')
+
+        url = crowd_config['url'] + '/usermanagement/latest/session.json'
         json_object = {'username': username,
                        'password': password,
                        'validation-factors':
                        {'validationFactors': [
-                            {'name': 'remote_address',
-                             'value': crowd_config['validation']}
-                             ]}
+                           {'name': 'remote_address',
+                            'value': crowd_config['validation']}
+                       ]}
                        }
         r = requests.post(url,
                           auth=(crowd_config['app_name'],
                                 crowd_config['password']),
                           data=json.dumps(json_object),
                           headers={'content-type': 'application/json',
-                                   'Accept': 'application/json'},timeout=my_timeout)
+                                   'Accept': 'application/json'}, timeout=my_timeout)
         try:
             token = r.json()['token']
         except:
@@ -92,30 +94,30 @@ class CrowdBackend(ModelBackend):
         return r.status_code, token
 
     @staticmethod
-    def _get_username_from_email(email,crowd_config):
+    def _get_username_from_email(email, crowd_config):
         print("Email Test")
-        url = '%s/usermanagement/latest/search.json?entity-type=user&restriction=email%%3D%s' % (crowd_config['url'], email,)
+        url = '%s/usermanagement/latest/search.json?entity-type=user&restriction=email%%3D%s' % (crowd_config['url'],
+                                                                                                 email,)
         r = requests.get(url, auth=(crowd_config['app_name'],
-                         crowd_config['password']),timeout=my_timeout)
+                         crowd_config['password']), timeout=my_timeout)
         content_parsed = r.json()
         try:
-             username = content_parsed['users'][0]['name']
-        except:
-             username = email
+            username = content_parsed['users'][0]['name']
+        except IndexError:
+            username = email
         return username
-        
-    
+
     @staticmethod
     def _create_user_from_crowd(username, crowd_config):
         """
         Creating a new user in django auth database basing on
         information provided by CROWD. Private service method.
         """
-        username = CrowdBackend._get_username_from_email(username,crowd_config)
+        username = CrowdBackend._get_username_from_email(username, crowd_config)
         url = '%s/usermanagement/latest/user.json?username=%s' % (
             crowd_config['url'], username,)
         r = requests.get(url, auth=(crowd_config['app_name'],
-                         crowd_config['password']),timeout=my_timeout)
+                         crowd_config['password']), timeout=my_timeout)
         content_parsed = r.json()
         user_model = get_user_model()
         user = user_model.objects.create_user(username, content_parsed['email'])

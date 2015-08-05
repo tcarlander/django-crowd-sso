@@ -4,6 +4,11 @@ setup(
     name='django-crowd',
     version='0.44',
     packages=['crowd', ],
+    install_requires=[
+        "requests",
+        "django",
+    ],
+
     license='Creative Commons Attribution-Noncommercial-Share Alike license',
     long_description=open('README.md').read(),
 )
