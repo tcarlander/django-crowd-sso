@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='django-crowd',
-    version='0.44',
+    version='0.45',
     packages=['crowd', ],
     install_requires=[
         "requests",
