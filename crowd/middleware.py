@@ -50,7 +50,7 @@ class CrowdMiddleware(object):
             try:
                 user_model = get_user_model()
                 user = user_model.objects.get(username=username)
-            except User.DoesNotExist:
+            except:
                 logger.debug("User not yet imported")
                 crowd_config = CrowdBackend._get_crowd_config()
                 user = CrowdBackend._create_user_from_crowd(
