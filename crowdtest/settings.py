@@ -29,11 +29,12 @@ ALLOWED_HOSTS = []
 
 CROWD_PROD = {
     'url': 'http://login.q.wfp.org/crowd/rest',  # your CROWD rest API url
-    'app_name': 'mdca-test',  # appname, registered with CROWD
-    'password': 'mdca-test',  # correct password for provided appname
-    'superuser': True,  # if set makes CROWD-authorized users superusers;
-    'staffuser': True,  # BE CAREFUL WITH THIS PARAMETER!
-    'group-import': False,
+    'app_name': 'mdca-test',    # appname, registered with CROWD
+    'password': 'mdca-test',    # correct password for provided appname
+    'superuser': False,          # if set makes CROWD-authorized users superusers;
+    'staffuser': True,          # BE CAREFUL WITH THIS PARAMETER!
+    'group-import': False,      # Not Yet Implemented
+    'sso': False,               # Use SSO or not
     'validation': '10.11.40.34',
 }
 
@@ -41,9 +42,10 @@ CROWD_DEV = {
     'url': 'http://login.dev.wfptha.org/crowd/rest',  # your CROWD rest API url
     'app_name': 'toby-test',  # appname, registered with CROWD
     'password': 'toby-test',  # correct password for provided appname
-    'superuser': True,  # if set makes CROWD-authorized users superusers;
+    'superuser': False,  # if set makes CROWD-authorized users superusers;
     'staffuser': True,  # BE CAREFUL WITH THIS PARAMETER!
     'group-import': False,
+    'sso': False,
     'validation': '127.0.0.1',
 }
 # CROWD = CROWD_DEV
@@ -58,7 +60,9 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    'rest_framework',
+    'authentication',
+    'user',
     'hello_crowd',
 )
 
@@ -67,10 +71,12 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'authentication.middleware.DisableCSRF',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'crowd.middleware.CrowdMiddleware',
+    
 )
 AUTHENTICATION_BACKENDS = (
     # ...
@@ -104,6 +110,7 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+AUTH_USER_MODEL = 'user.AuthUser'
 
 
 # Static files (CSS, JavaScript, Images)

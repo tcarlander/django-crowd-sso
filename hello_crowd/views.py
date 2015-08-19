@@ -13,4 +13,4 @@ def hello_view(request):
 
 @login_required(login_url='/admin/login/')
 def hello_forced_login(request):
-    return HttpResponse('Hello', content_type='text/plain')
+    return HttpResponse('Hello ' + request.user.email, content_type='text/plain')

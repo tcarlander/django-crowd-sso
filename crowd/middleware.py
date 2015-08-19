@@ -7,7 +7,7 @@ import requests
 
 from .backends import CrowdBackend
 
-my_timeout = 5
+my_timeout = 20
 logger = logging.getLogger(__name__)
 
 
@@ -21,7 +21,18 @@ class CrowdMiddleware(object):
     cookie_secure = False
 
     def process_request(self, request):
-        #        CrowdBackend =  CrowdBackend()
+        
+        crowd_config = CrowdBackend._get_crowd_config()
+        try:
+            SSO = crowd_config['sso']
+        except:
+            SSO = False
+        if SSO:
+            logger.debug("SSO")
+            pass
+        else:
+            logger.debug("No SSO")
+            return
         self.cookie_config()
         username = None
         crowd_backend_class = CrowdBackend.__module__ + "." + CrowdBackend.__name__
@@ -64,6 +75,17 @@ class CrowdMiddleware(object):
         login(request, None)
 
     def process_response(self, request, response):
+        crowd_config = CrowdBackend._get_crowd_config()
+        try:
+            SSO = crowd_config['sso']
+        except:
+            SSO = False
+        if SSO:
+            logger.debug("SSO")
+            pass
+        else:
+            logger.debug("No SSO")
+            return response
         crowd_backend_class = CrowdBackend.__module__ + "." + CrowdBackend.__name__
         crowd_token = request.COOKIES.get(self.cookie_name, None)
         try:
