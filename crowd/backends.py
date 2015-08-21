@@ -20,14 +20,14 @@ class CrowdBackend(ModelBackend):
     """
 # http://login.dev.wfptha.org/crowd/rest/usermanagement/1/search?entity-type=user&restriction=email%3Dtobias.carlander%40wfp.org
 
-    def authenticate(self,  **kwargs):
+    def authenticate(self, username=None, password=None, email=None, **kwargs):
         """
         Main authentication method
         :param **kwargs:
         """
-        username = kwargs.get("username")
-        password = kwargs.get("password")
-        email = kwargs.get("email")
+        username = username
+        password = password
+        email = email
         if(not username and not email) or not password:
                 return None
         logger.debug("Authenticate")
