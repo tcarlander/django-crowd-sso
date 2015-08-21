@@ -20,16 +20,20 @@ class CrowdBackend(ModelBackend):
     """
 # http://login.dev.wfptha.org/crowd/rest/usermanagement/1/search?entity-type=user&restriction=email%3Dtobias.carlander%40wfp.org
 
-    def authenticate(self, username, password, **kwargs):
+    def authenticate(self,  **kwargs):
         """
         Main authentication method
         :param **kwargs:
         """
-
+        username = kwargs.get("username")
+        password = kwargs.get("password")
+        email = kwargs.get("email")
+        if(not username and not email) or not password:
+                return None
         logger.debug("Authenticate")
         crowd_config = self._get_crowd_config()
-        username = self._get_username_from_email(username, crowd_config)
-        print(username)
+        username = self._get_username_from_email(email or username, crowd_config)
+        logger.debug(username)
         user = self._find_existing_user(username)
 
         resp, session_crowd = self._call_crowd_session(username,
@@ -37,7 +41,7 @@ class CrowdBackend(ModelBackend):
                                                        crowd_config)
         if resp == 201:
             logger.debug("got response")
-            print(session_crowd)
+            logger.debug(session_crowd)
             if not user:
                 logger.debug("Create User")
                 user = self._create_user_from_crowd(username, crowd_config)
