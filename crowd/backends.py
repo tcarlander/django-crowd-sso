@@ -1,7 +1,6 @@
 import json
 from importlib import import_module
 import logging
-
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 import requests
@@ -60,7 +59,8 @@ class CrowdBackend(ModelBackend):
             raise UserWarning('CROWD configuration is not in your settings.py')
         return config
 
-    def _find_existing_user(self, username):
+    @staticmethod
+    def _find_existing_user(username):
         """
         Finds an existing user with provided username. Private service method.
         """
@@ -71,7 +71,8 @@ class CrowdBackend(ModelBackend):
         else:
             return users[0]
 
-    def _call_crowd_session(self, username, password, crowd_config):
+    @staticmethod
+    def _call_crowd_session(username, password, crowd_config):
         """
         Calls CROWD webservice. Private service method.
         """
@@ -93,7 +94,7 @@ class CrowdBackend(ModelBackend):
                                    'Accept': 'application/json'}, timeout=my_timeout)
         try:
             token = r.json()['token']
-        except:
+        except KeyError:
             token = None
         return r.status_code, token
 
