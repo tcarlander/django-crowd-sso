@@ -15,7 +15,8 @@ CROWD = {
     'password': 'application-password',                     # correct password for provided appname
     'superuser': True,                                      # if set makes CROWD-authorized users superusers;
     'staffuser': True,                                      # BE CAREFUL WITH THIS PARAMETER!
-    'validation':'10.11.40.34',                             # The ipaddress the Crowd server is responding to 
+    'validation':'10.11.40.34',                             # The ipaddress the Crowd server is responding to
+    'sso': False,
 }
 ```
 

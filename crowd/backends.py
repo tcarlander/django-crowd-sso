@@ -99,7 +99,10 @@ class CrowdBackend(ModelBackend):
 
     @staticmethod
     def _get_username_from_email(email, crowd_config):
-        print("Email Test")
+        """
+        Check if username is email
+        """
+
         url = '%s/usermanagement/latest/search.json?entity-type=user&restriction=email%%3D%s' % (crowd_config['url'],
                                                                                                  email,)
         r = requests.get(url, auth=(crowd_config['app_name'],
