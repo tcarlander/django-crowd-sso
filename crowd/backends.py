@@ -105,7 +105,7 @@ class CrowdBackend(ModelBackend):
         """
 
         url = '%s/usermanagement/latest/search.json?entity-type=user&restriction=email%%3D%s' % (crowd_config['url'],
-                                                                                                 email,)
+                                                                                                 email[0],)
         r = requests.get(url, auth=(crowd_config['app_name'],
                          crowd_config['password']), timeout=my_timeout)
         content_parsed = r.json()
