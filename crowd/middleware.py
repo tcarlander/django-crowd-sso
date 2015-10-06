@@ -19,7 +19,7 @@ class CrowdMiddleware(object):
     cookie_secure = False
 
     def process_request(self, request):
-        
+
         crowd_config = CrowdBackend._get_crowd_config()
         try:
             SSO = crowd_config['sso']
@@ -45,8 +45,14 @@ class CrowdMiddleware(object):
             return
 
         if crowd_token:
-            request.session['CrowdToken'] = crowd_token
-            request.session.save()
+            current_token = request.session.get('CrowdToken')
+            if current_token != crowd_token:
+                request.session['CrowdToken'] = crowd_token
+                try:
+                    request.session.save()
+                except:
+                    logger.debug("Not saved now")
+
             username, status_code_token = self.get_the_user_from_token(crowd_token)
             if not status_code_token:
                 request.session.flush()
@@ -123,7 +129,7 @@ class CrowdMiddleware(object):
 
         else:
             if (not logged_in and
-                    crowd_token is not None):
+                        crowd_token is not None):
                 self.invalidate_token(crowd_token)
                 self.cookie_config()
                 response.delete_cookie(self.cookie_name,
@@ -140,7 +146,7 @@ class CrowdMiddleware(object):
                 requests.delete(url, auth=(crowd_config['app_name'],
                                            crowd_config['password']), timeout=my_timeout)
             except:
-                reqeust.debug('Crowd not responding')
+                logging.debug('Crowd not responding')
 
     def get_the_user_from_token(self, token):
         #        try:
