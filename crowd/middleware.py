@@ -1,6 +1,7 @@
 import logging
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login, logout
+from django.db import transaction
 import requests
 
 from .backends import CrowdBackend
@@ -49,7 +50,8 @@ class CrowdMiddleware(object):
             if current_token != crowd_token:
                 request.session['CrowdToken'] = crowd_token
                 try:
-                    request.session.save()
+                    with transaction.atomic():
+                        request.session.save()
                 except:
                     logger.debug("Not saved now")
 
