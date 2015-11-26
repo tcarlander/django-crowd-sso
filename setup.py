@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='django-crowd',
-    version='0.46.1',
+    version='0.46.2',
     packages=['crowd', ],
     install_requires=['django','requests'],
     license='Creative Commons Attribution-Noncommercial-Share Alike license',
