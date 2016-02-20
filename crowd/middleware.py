@@ -4,7 +4,7 @@ from django.contrib.auth import login, logout
 from django.db import transaction
 import requests
 
-from .backends import CrowdBackend
+from .backends import CrowdBackend, _get_crowd_config
 
 my_timeout = 20
 logger = logging.getLogger(__name__)
@@ -21,16 +21,14 @@ class CrowdMiddleware(object):
 
     def process_request(self, request):
 
-        crowd_config = CrowdBackend._get_crowd_config()
+        crowd_config = _get_crowd_config()
         try:
             SSO = crowd_config['sso']
         except:
             SSO = False
         if SSO:
-            logger.debug("SSO")
             pass
         else:
-            logger.debug("No SSO")
             return
         self.cookie_config()
         username = None
@@ -69,7 +67,7 @@ class CrowdMiddleware(object):
                 user = user_model.objects.get(username=username)
             except:
                 logger.debug("User not yet imported")
-                crowd_config = CrowdBackend._get_crowd_config()
+                crowd_config = _get_crowd_config()
                 user = CrowdBackend._create_user_from_crowd(
                     username, crowd_config)
             user.backend = crowd_backend_class
@@ -81,7 +79,7 @@ class CrowdMiddleware(object):
         login(request, None)
 
     def process_response(self, request, response):
-        crowd_config = CrowdBackend._get_crowd_config()
+        crowd_config = _get_crowd_config()
         try:
             SSO = crowd_config['sso']
         except:
@@ -140,7 +138,7 @@ class CrowdMiddleware(object):
         return response
 
     def invalidate_token(self, token):
-        crowd_config = CrowdBackend._get_crowd_config()
+        crowd_config = _get_crowd_config()
         if token:
             url = '%s/usermanagement/latest/session/%s.json' % (
                 crowd_config['url'], token,)
@@ -152,7 +150,7 @@ class CrowdMiddleware(object):
 
     def get_the_user_from_token(self, token):
         #        try:
-        crowd_config = CrowdBackend._get_crowd_config()
+        crowd_config = _get_crowd_config()
         url = '%s/usermanagement/latest/session/%s.json' % (
             crowd_config['url'], token,)
         r = requests.get(url, auth=(crowd_config['app_name'],
@@ -171,7 +169,7 @@ class CrowdMiddleware(object):
             return
         else:
             #            try:
-            crowd_config = CrowdBackend._get_crowd_config()
+            crowd_config = _get_crowd_config()
             url = '%s/usermanagement/latest/config/cookie.json' % (
                 crowd_config['url'],)
             r = requests.get(url, auth=(crowd_config['app_name'],

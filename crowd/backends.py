@@ -30,7 +30,7 @@ class CrowdBackend(ModelBackend):
         if(not username and not email) or not password:
                 return None
         logger.debug("Authenticate")
-        crowd_config = self._get_crowd_config()
+        crowd_config = _get_crowd_config()
         username = self._get_username_from_email(email or username, crowd_config)
         logger.debug(username)
         user = self._find_existing_user(username)
@@ -49,15 +49,6 @@ class CrowdBackend(ModelBackend):
         else:
             return None
 
-    @staticmethod
-    def _get_crowd_config():
-        """
-        Returns CROWD-related project settings. Private service method.
-        """
-        config = getattr(settings, 'CROWD', None)
-        if not config:
-            raise UserWarning('CROWD configuration is not in your settings.py')
-        return config
 
     @staticmethod
     def _find_existing_user(username):
@@ -137,3 +128,24 @@ class CrowdBackend(ModelBackend):
         user.is_staff = crowd_config.get('staffuser', False)
         user.save()
         return user
+
+
+def import_users(users):
+    print("In Backend")
+    for user in users:
+        user_name  =  CrowdBackend._get_username_from_email(user,_get_crowd_config())
+        if user_name != user:
+            print("crowd")
+        else:
+            print("Not Crowd")
+        print(user_name)
+
+
+def _get_crowd_config():
+        """
+        Returns CROWD-related project settings. Private service method.
+        """
+        config = getattr(settings, 'CROWD', None)
+        if not config:
+            raise UserWarning('CROWD configuration is not in your settings.py')
+        return config

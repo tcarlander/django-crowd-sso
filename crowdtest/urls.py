@@ -12,4 +12,5 @@ urlpatterns = patterns('',
                        # url(r'^accounts/login/$', auth_views.login),
                        (r'^accounts/login/$', 'django.contrib.auth.views.login'),
                        url(r'^admin/', include(admin.site.urls)),
+                       url(r'insert_users/$', hello_crowd.views.make_this_list),
                        )
