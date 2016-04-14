@@ -4,8 +4,9 @@ try:
     from unittest.mock import patch, Mock
 except ImportError:
     from mock import patch, Mock
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 import logging
+User = get_user_model()
 
 logger = logging.getLogger(__name__)
 
@@ -290,4 +291,4 @@ class TestLogin(TestCase):
         my_response = response.content.decode("utf-8")
         self.assertEqual(response.status_code, 200)
         self.assertTrue(
-            'Please enter the correct username and password for a staff account' in my_response)
+            'Please enter the correct' in my_response)
