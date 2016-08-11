@@ -128,7 +128,7 @@ class TestLogin(TestCase):
     def test_not_logged_in(self):
         response = self.client.get('/admin/')
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], 'http://testserver/admin/login/?next=/admin/')
+        self.assertEqual(response['location'], '/admin/login/?next=/admin/')
 
     def test_get_homepage_no_login(self):
         response = self.client.get('/')
@@ -137,7 +137,7 @@ class TestLogin(TestCase):
     def test_get_homepage_login_req(self):
         response = self.client.get('/l')
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], 'http://testserver/admin/login/?next=/l')
+        self.assertEqual(response['location'], '/admin/login/?next=/l')
         r = Mock()
         r.status_code = 201
         r.json.return_value = {"token": "VALID_TOKEN"}
@@ -146,7 +146,7 @@ class TestLogin(TestCase):
         self.mock_requests_get.side_effect = mock_get_response
         response = self.client.post('/admin/login/?next=/l', {'username': 'admin', 'password': '55555555'})
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['Location'], 'http://testserver/l')
+        self.assertEqual(response['Location'], '/l')
 
     def test_login_sucsessful_with_existing_crowd_user(self):
         logger.debug("test 1")
@@ -158,7 +158,7 @@ class TestLogin(TestCase):
         self.mock_requests_get.side_effect = mock_get_response
         response = self.client.post('/admin/login/?next=/admin/', {'username': 'admin', 'password': '55555555'})
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['Location'], 'http://testserver/admin/')
+        self.assertEqual(response['Location'], '/admin/')
         response2 = self.client.get('/admin/')
         self.assertEqual(response2.status_code, 200)
 
@@ -173,7 +173,7 @@ class TestLogin(TestCase):
         response = self.client.post('/admin/login/?next=/admin/',
                                     {'username': 'admin@test.com', 'password': '55555555'})
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['Location'], 'http://testserver/admin/')
+        self.assertEqual(response['Location'], '/admin/')
         response2 = self.client.get('/admin/')
         self.assertEqual(response2.status_code, 200)
 
@@ -186,7 +186,7 @@ class TestLogin(TestCase):
         self.mock_requests_post.return_value = r
         response = self.client.post('/admin/login/?next=/admin/', {'username': 'admin', 'password': '55555555'})
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['Location'], 'http://testserver/admin/')
+        self.assertEqual(response['Location'], '/admin/')
         response2 = self.client.get('/admin/')
         self.assertEqual(response2.status_code, 200)
 
@@ -200,9 +200,9 @@ class TestLogin(TestCase):
         response = self.client.post('/admin/login/?next=/admin/',
                                     {'username': 'admin@test.com', 'password': '55555555'})
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['Location'], 'http://testserver/admin/')
+        self.assertEqual(response['Location'], '/admin/')
         response2 = self.client.get('/admin/')
-        self.assertEqual(response2.status_code, 302)
+        self.assertEqual(response2.status_code, 200)
 
     def test_sso_login_new_user(self):
         logger.debug("\ntest test_sso_login")

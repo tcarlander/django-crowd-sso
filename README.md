@@ -25,7 +25,6 @@ Put it first so that password are only kept in CROWD:
 
 ```
 AUTHENTICATION_BACKENDS = (
-    # ...
     'crowd.backends.CrowdBackend'
     'django.contrib.auth.backends.ModelBackend',
 )
