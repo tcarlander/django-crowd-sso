@@ -4,7 +4,7 @@ setup(
     name='django-crowd',
     version='0.47',
     packages=['crowd', ],
-    install_requires=['django','requests'],
+    install_requires=['django', 'requests', 'djangorestframework', 'simplejson'],
     license='Creative Commons Attribution-Noncommercial-Share Alike license',
     long_description=open('README.md').read(),
 )
