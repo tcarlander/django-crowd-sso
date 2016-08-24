@@ -37,6 +37,17 @@ Add     'crowd.middleware.CookieMiddleware' to the Middleware
 AUTHENTICATION_BACKENDS list to make sure you always start with crowd authentication before falling over to
 a local account.
 
+
+
+**NEW for version 0.50**
+
+Added import_users_from_email_list that takes a array of emails and returns an array of usernames that collate to those emails, and an array of not found emails
+```
+from crowd.backends import import_users_from_email_list
+
+        added, not_found = import_users_from_email_list(users)
+```
+
 Credits:
 ========
 
