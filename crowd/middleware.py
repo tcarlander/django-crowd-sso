@@ -23,13 +23,13 @@ class CrowdMiddleware(object):
 
         crowd_config = _get_crowd_config()
         try:
-            SSO = crowd_config['sso']
+            sso = crowd_config['sso']
         except:
-            SSO = False
-        if SSO:
-            pass
-        else:
+            sso = False
+        if not(sso):
+            logger.debug("No SSO")
             return
+        logger.debug("SSO")
         self.cookie_config()
         username = None
         crowd_backend_class = CrowdBackend.__module__ + "." + CrowdBackend.__name__
@@ -67,9 +67,8 @@ class CrowdMiddleware(object):
                 user = user_model.objects.get(username=username)
             except:
                 logger.debug("User not yet imported")
-                crowd_config = _get_crowd_config()
                 user = CrowdBackend._create_user_from_crowd(
-                    username, crowd_config)
+                    username)
             user.backend = crowd_backend_class
 
             request.user = user
@@ -81,15 +80,14 @@ class CrowdMiddleware(object):
     def process_response(self, request, response):
         crowd_config = _get_crowd_config()
         try:
-            SSO = crowd_config['sso']
+            sso = crowd_config['sso']
         except:
-            SSO = False
-        if SSO:
-            logger.debug("SSO")
-            pass
-        else:
+            sso = False
+        if not(sso):
             logger.debug("No SSO")
             return response
+
+        logger.debug("SSO")
         crowd_backend_class = CrowdBackend.__module__ + "." + CrowdBackend.__name__
         crowd_token = request.COOKIES.get(self.cookie_name, None)
         try:

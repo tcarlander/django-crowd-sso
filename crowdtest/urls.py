@@ -1,16 +1,14 @@
 from django.contrib import admin
-from django.conf.urls import include, patterns, url
+from django.conf.urls import url
+from django.contrib.auth.views import login, logout
 
 import hello_crowd.views
 
-urlpatterns = patterns('',
-                       # Examples:
-                       # url(r'^$', 'crowdtest.views.home', name='home'),
-                       # url(r'^blog/', include('blog.urls')),
-                       url(r'^$', hello_crowd.views.hello_view),
-                       url(r'^l$', hello_crowd.views.hello_forced_login),
-                       # url(r'^accounts/login/$', auth_views.login),
-                       (r'^accounts/login/$', 'django.contrib.auth.views.login'),
-                       url(r'^admin/', include(admin.site.urls)),
-                       url(r'insert_users/$', hello_crowd.views.make_this_list),
-                       )
+urlpatterns = [
+    url(r'^$', hello_crowd.views.hello_view),
+    url(r'^l$', hello_crowd.views.hello_forced_login),
+    url(r'^logout$', logout),
+    url(r'^accounts/login/$', login),
+    url(r'^admin/', admin.site.urls),
+    url(r'insert_users/$', hello_crowd.views.make_this_list),
+]
