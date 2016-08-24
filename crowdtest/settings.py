@@ -23,7 +23,6 @@ SECRET_KEY = 'y4ul1)#cgvl^-6#hri@ifxzp+gk80*$(tzy5r=u11zytto8gb0'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
@@ -45,7 +44,7 @@ CROWD_DEV = {
     'superuser': False,  # if set makes CROWD-authorized users superusers;
     'staffuser': True,  # BE CAREFUL WITH THIS PARAMETER!
     'group-import': False,
-    'sso': False,
+    'sso': True,
     'validation': '127.0.0.1',
 }
 # CROWD = CROWD_DEV
@@ -77,13 +76,13 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'crowd.middleware.CrowdMiddleware',
-    
 )
+
 AUTHENTICATION_BACKENDS = (
-    # ...
     'crowd.backends.CrowdBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
+
 ROOT_URLCONF = 'crowdtest.urls'
 
 TEMPLATES = [
