@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.conf.urls import url
 from django.contrib.auth.views import login, logout
 
+
 import hello_crowd.views
 
 urlpatterns = [

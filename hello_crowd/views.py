@@ -1,7 +1,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from crowd.backends import import_users
+from crowd.backends import import_users_from_email_list
 from hello_crowd.form import UsersForm
 
 
@@ -26,11 +26,13 @@ def make_this_list(request):
             user_list = form.cleaned_data['user_list']
 
             users = user_list.split()
-            import_users(users)
-            for user in users:
+            added, not_found = import_users_from_email_list(users)
+            print("Added")
+            for user in added:
                 print(user)
-            #form.data = form.data.copy()
-            #form.data['user_list'] = "Done"
+            print("NotFound")
+            for user in not_found:
+                print(user)
             return render(request, 'userimport.html', {'form': form})
 
     # if a GET (or any other method) we'll create a blank form

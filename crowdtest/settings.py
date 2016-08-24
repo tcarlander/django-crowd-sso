@@ -44,7 +44,7 @@ CROWD_DEV = {
     'superuser': False,  # if set makes CROWD-authorized users superusers;
     'staffuser': True,  # BE CAREFUL WITH THIS PARAMETER!
     'group-import': False,
-    'sso': False,
+    'sso': True,
     'validation': '127.0.0.1',
 }
 # CROWD = CROWD_DEV
