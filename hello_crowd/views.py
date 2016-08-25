@@ -19,7 +19,6 @@ def hello_forced_login(request):
 
 
 def make_this_list(request):
-    # if this is a POST request we need to process the form data
     if request.method == 'POST':
         form = UsersForm(request.POST)
         if form.is_valid():
@@ -33,9 +32,6 @@ def make_this_list(request):
             print("NotFound")
             for user in not_found:
                 print(user)
-            return render(request, 'userimport.html', {'form': form})
-
-    # if a GET (or any other method) we'll create a blank form
     else:
         form = UsersForm()
 
