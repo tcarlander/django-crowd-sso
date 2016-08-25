@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from crowd.backends import import_users_from_email_list
