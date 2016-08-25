@@ -1,3 +1,3 @@
-1. put django in package requirements
-2. integrate with Travis CI and test against multiple versions of Django
-3. generate documentation
+1: Testing running with Tox
+2: Full documentation
+3: Extend testing to SSO

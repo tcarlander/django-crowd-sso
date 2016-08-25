@@ -21,6 +21,7 @@ class CrowdBackend(ModelBackend):
     def authenticate(self, username=None, password=None, email=None, **kwargs):
         """
         Main authentication method
+
         Args:
             :param email: Email Address
             :param password: Password
@@ -33,7 +34,6 @@ class CrowdBackend(ModelBackend):
             return None
         username = self.get_username_from_email(email or username)
         user = self.find_existing_user(username)
-
         resp, session_crowd = self._call_crowd_session(username, password)
         if resp == 201:
             logger.debug("got response from Crowd")
@@ -47,23 +47,11 @@ class CrowdBackend(ModelBackend):
             return None
 
     @staticmethod
-    def _get_crowd_config():
-        """
-        Returns CROWD-related project settings. Private service method.
-        """
-        config = getattr(settings, 'CROWD', None)
-        if not config:
-            raise UserWarning('CROWD configuration is not in your settings.py')
-        return config
-
-    @staticmethod
     def find_existing_user(username):
         """
-        Finds an existing user with provided username. Private service method.
-        Args:
-            :param username: can be either username or the email
-        """
+        Return an existing user with provided username/email.
 
+        """
         user_model = get_user_model()
         users = user_model.objects.filter(username=username)
         if users.count() <= 0:
@@ -76,11 +64,14 @@ class CrowdBackend(ModelBackend):
             return users[0]
 
     @staticmethod
-    def _call_crowd_session(username, password):
+    def _call_crowd_session(username: str, password: str):
         """
-        Calls CROWD webservice. Private service method.
+        Calls CROWD to authenticate user, return CROWD Token and return code
+        CROWD Token will be None if failed to authenticate
+        :rtype: (string, string)
+        :return: (status_code, token)
         """
-        crowd_config = CrowdBackend._get_crowd_config()
+        crowd_config = get_crowd_config()
 
         url = crowd_config['url'] + '/usermanagement/latest/session.json'
         json_object = {'username': username,
@@ -99,14 +90,15 @@ class CrowdBackend(ModelBackend):
                                    'Accept': 'application/json'}, timeout=my_timeout)
         try:
             token = r.json()['token']
-        except KeyError:
+        except KeyError:  # pragma: no cover
             token = None
         return r.status_code, token
 
     @staticmethod
-    def get_username_from_email(email):
+    def get_username_from_email(email: str):
         """
-        Check if username is email
+        Check if this emails is a known user (in django users or in crowd) and passes username back if found
+        If not found in crowd pass back the incoming string
         """
         user_model = get_user_model()
         # first look locally
@@ -116,10 +108,9 @@ class CrowdBackend(ModelBackend):
             logger.debug("Found in local DB")
             return username
 
-        crowd_config = CrowdBackend._get_crowd_config()
+        crowd_config = get_crowd_config()
 
-        url = '%s/usermanagement/latest/search.json?entity-type=user&restriction=email%%3D%s' % (crowd_config['url'],
-                                                                                                 email,)
+        url = '%s/usermanagement/latest/search.json?entity-type=user&restriction=email%%3D%s' % (crowd_config['url'], email,)
         r = requests.get(url, auth=(crowd_config['app_name'],
                                     crowd_config['password']), timeout=my_timeout)
         content_parsed = r.json()
@@ -130,12 +121,12 @@ class CrowdBackend(ModelBackend):
         return username
 
     @staticmethod
-    def create_user_from_crowd(username):
+    def create_user_from_crowd(username: str):
         """
         Creating a new user in django auth database basing on
         information provided by CROWD. Private service method.
         """
-        crowd_config = CrowdBackend._get_crowd_config()
+        crowd_config = get_crowd_config()
         username = CrowdBackend.get_username_from_email(username)
         url = '%s/usermanagement/latest/user.json?username=%s' % (
             crowd_config['url'], username,)
@@ -154,30 +145,37 @@ class CrowdBackend(ModelBackend):
         return user
 
 
-def import_users_from_email_list(list_of_users):
-    new_users = []
-    not_found_users = []
+def import_users_from_email_list(list_of_emails):
+    """
+    Takes an array of emails and returns a tuple with:
+        Usernames of Users found in django users or found and imported from crowd to django users
+        emails not found in either django users or in crowd
+    
+    :rtype: (list[string], list[string])
+    :param list_of_emails: list[string]
+    """
+    found_and_added_users = []
+    not_found_emails = []
 
-    for user in list_of_users:
-        print(user)
-        user_name = CrowdBackend.get_username_from_email(user)
-        if user == user_name:
-            not_found_users.append(user)
+    for email in list_of_emails:
+        user_name = CrowdBackend.get_username_from_email(email)
+        if email == user_name:
+            not_found_emails.append(email)
         else:
-            new_users.append(user_name)
+            found_and_added_users.append(user_name)
 
-    if new_users:
-        for name in new_users:
-            if not (CrowdBackend.find_existing_user(name)):
-                CrowdBackend.create_user_from_crowd(name)
-    return new_users, not_found_users
+    if found_and_added_users:
+        for user in found_and_added_users:
+            if not (CrowdBackend.find_existing_user(user)):
+                CrowdBackend.create_user_from_crowd(user)
+    return found_and_added_users, not_found_emails
 
 
 def get_crowd_config():
     """
-    Returns CROWD-related project settings. Private service method.
+    Returns CROWD-related project settings.
     """
     config = getattr(settings, 'CROWD', None)
-    if not config:
+    if not config:  # pragma: no cover
         raise UserWarning('CROWD configuration is not in your settings.py')
     return config

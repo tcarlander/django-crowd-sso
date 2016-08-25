@@ -21,7 +21,7 @@ class CrowdMiddleware(object):
     cookie_domain = ''
     cookie_secure = False
 
-    def process_request(self, request):
+    def process_request(self, request):  # pragma: no cover
 
         crowd_config = get_crowd_config()
         try:
@@ -29,15 +29,13 @@ class CrowdMiddleware(object):
         except KeyError:
             sso = False
         if not sso:
-            logger.debug("No SSO")
             return
-        logger.debug("SSO")
         self.cookie_config()
         username = None
         crowd_backend_class = CrowdBackend.__module__ + "." + CrowdBackend.__name__
         crowd_token = request.COOKIES.get(self.cookie_name, None)
 
-        if not crowd_token:
+        if not crowd_token: # pragma: no cover
             logger.debug("Should logout or am i local")
             sess = request.session.get('CrowdToken', None)
             if sess is not None:
@@ -45,7 +43,7 @@ class CrowdMiddleware(object):
                 logger.debug("Logout due to Crowd SSO logout")
             return
 
-        if crowd_token:
+        if crowd_token: # pragma: no cover
             current_token = request.session.get('CrowdToken')
             if current_token != crowd_token:
                 request.session['CrowdToken'] = crowd_token
@@ -60,10 +58,10 @@ class CrowdMiddleware(object):
             if not status_code_token:
                 request.session.flush()
 
-        if request.user.is_authenticated():
+        if request.user.is_authenticated(): # pragma: no cover
             return
 
-        if username:
+        if username: # pragma: no cover
             logger.debug("Check if User already there")
             try:
                 user_model = get_user_model()
@@ -79,7 +77,7 @@ class CrowdMiddleware(object):
         # CrowdBackend.set_cookie(crowd_token,user)
         login(request, None)
 
-    def process_response(self, request, response):
+    def process_response(self, request, response):  # pragma: no cover
         crowd_config = get_crowd_config()
         try:
             sso = crowd_config['sso']
@@ -135,7 +133,7 @@ class CrowdMiddleware(object):
         return response
 
     @staticmethod
-    def invalidate_token(token):
+    def invalidate_token(token):  # pragma: no cover
         crowd_config = get_crowd_config()
         if token:
             url = '%s/usermanagement/latest/session/%s.json' % (
@@ -147,7 +145,7 @@ class CrowdMiddleware(object):
                 logging.debug('Crowd not responding')
 
     @staticmethod
-    def get_the_user_from_token(token):
+    def get_the_user_from_token(token):  # pragma: no cover
         #        try:
         crowd_config = get_crowd_config()
         url = '%s/usermanagement/latest/session/%s.json' % (
@@ -159,15 +157,11 @@ class CrowdMiddleware(object):
             return content_parsed['user']['name'], True
         else:
             return None, False
-            #        except:
-            #             logger.error("Can not validate the Token")
-            #             return None,False
 
-    def cookie_config(self):
+    def cookie_config(self):  # pragma: no cover
         if self.cookie_config_done:
             return
         else:
-            #            try:
             crowd_config = get_crowd_config()
             url = '%s/usermanagement/latest/config/cookie.json' % (
                 crowd_config['url'],)
@@ -178,6 +172,3 @@ class CrowdMiddleware(object):
             self.cookie_domain = content_parsed['domain']
             self.cookie_secure = content_parsed['secure']
             self.cookie_config_done = True
-            #            except:
-            #                 logger.error('Can not get Crowd Cookie Config')
-            #                 return

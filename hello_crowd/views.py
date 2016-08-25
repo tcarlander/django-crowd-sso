@@ -22,16 +22,16 @@ def make_this_list(request):
     if request.method == 'POST':
         form = UsersForm(request.POST)
         if form.is_valid():
-            user_list = form.cleaned_data['user_list']
+            email_list = form.cleaned_data['email_list']
 
-            users = user_list.split()
-            added, not_found = import_users_from_email_list(users)
+            emails = email_list.split()
+            FoundOrAdded, NotFound = import_users_from_email_list(emails)
             print("Added")
-            for user in added:
+            for user in FoundOrAdded:
                 print(user)
             print("NotFound")
-            for user in not_found:
-                print(user)
+            for email in NotFound:
+                print(email)
     else:
         form = UsersForm()
 
