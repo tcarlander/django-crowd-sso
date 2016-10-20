@@ -40,6 +40,9 @@ a local account.
 simple test:
 `./manage.py test`
 
+Tox test:
+`tox`
+
 test currenly does not cover the SSO
 
 **NEW for version 0.50**

@@ -1,3 +1,2 @@
-1: Testing running with Tox
-2: Full documentation
-3: Extend testing to SSO
+1: Full documentation
+2: Extend testing to SSO
