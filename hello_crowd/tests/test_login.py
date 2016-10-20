@@ -279,3 +279,18 @@ class TestLogin(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(
             'Please enter the correct' in my_response)
+
+    def test_import_list(self):
+        from crowd.backends import import_users_from_email_list
+        self.mock_requests_get.side_effect = mock_get_response
+        r = Mock()
+        r.status_code = 201
+        r.json.return_value = {"token": "VALID_TOKEN"}
+        self.mock_requests_post.return_value = r
+        response = self.client.post('/admin/login/?next=/admin/',
+                                    {'username': 'admin@test.com', 'password': '55555555'})
+
+        emails = ["admin@test.com", "b@b.c", "c@b.c"]
+        added, not_added = import_users_from_email_list(emails)
+        self.assertEquals(added, ['admin'])
+        self.assertEquals(not_added, ['b@b.c', 'c@b.c'])

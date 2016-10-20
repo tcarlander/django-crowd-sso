@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from crowd.backends import import_users_from_email_list
@@ -19,23 +19,19 @@ def hello_forced_login(request):
 
 
 def make_this_list(request):
-    # if this is a POST request we need to process the form data
     if request.method == 'POST':
         form = UsersForm(request.POST)
         if form.is_valid():
-            user_list = form.cleaned_data['user_list']
+            email_list = form.cleaned_data['email_list']
 
-            users = user_list.split()
-            added, not_found = import_users_from_email_list(users)
+            emails = email_list.split()
+            FoundOrAdded, NotFound = import_users_from_email_list(emails)
             print("Added")
-            for user in added:
+            for user in FoundOrAdded:
                 print(user)
             print("NotFound")
-            for user in not_found:
-                print(user)
-            return render(request, 'userimport.html', {'form': form})
-
-    # if a GET (or any other method) we'll create a blank form
+            for email in NotFound:
+                print(email)
     else:
         form = UsersForm()
 
