@@ -45,30 +45,38 @@ Tox test:
 
 test currenly does not cover the SSO
 
-**NEW for version 0.50**
+**New For version 0.52**
 
-Added import_users_from_email_list that takes a array of emails and returns an array of usernames that collate to those emails, and an array of not found emails
+Added disalowed emails to the import first version hardcoded @wfp.org, will be a setting in future
+
+any email with @wfp.org but not in crowd will be in the dissalowed list
+ 
 example of use
 
 * User with email a@b.c is already user 'a' in the local db as a django created user
 * User with email b@c.c is already user 'b' in the local db as a imported user from Crowd
 * User with email c@a.b is no already user in the local db but exists in Crowd so it will be imported as user 'b'
 * User with email d@e.f is not in local db nor in Crowd
+* User with email e@wfp.org is on dissalowed list 
 
 ```
 from crowd.backends import import_users_from_email_list
 
-        emails = ["a@b.c", "b@c.c", "c@a.b", "d@e.f"]
-        added_or_found, not_found = import_users_from_email_list(emails)
+        emails = ["a@b.c", "b@c.c", "c@a.b", "d@e.f","e@wfp.org"]
+        added_or_found, not_found, not_alowed = import_users_from_email_list(emails)
         print(added_or_found)
         print(not_found)
+        print(not_allowed)
 ```
 Resulting printout:
 ```
 ['a','b','c']
 
 ['d@e.f']
+
+['e@wfp.org']
 ```
+
 
 Credits:
 ========
