@@ -151,16 +151,21 @@ def import_users_from_email_list(list_of_emails):
         Usernames of Users found in django users or found and imported from crowd to django users
         emails not found in either django users or in crowd
     
-    :rtype: (list[string], list[string])
+    :rtype: (list[string], list[string],list[string])
     :param list_of_emails: list[string]
     """
     found_and_added_users = []
     not_found_emails = []
-
+    not_allowed_emails = []
+    # TODO add to settings
+    domains_not_allowed = ['@wfp.org']
     for email in list_of_emails:
         user_name = CrowdBackend.get_username_from_email(email)
         if email == user_name:
-            not_found_emails.append(email)
+            if any(word in email for word in domains_not_allowed):
+                not_allowed_emails.append(email)
+            else:
+                not_found_emails.append(email)
         else:
             found_and_added_users.append(user_name)
 
@@ -168,7 +173,7 @@ def import_users_from_email_list(list_of_emails):
         for user in found_and_added_users:
             if not (CrowdBackend.find_existing_user(user)):
                 CrowdBackend.create_user_from_crowd(user)
-    return found_and_added_users, not_found_emails
+    return found_and_added_users, not_found_emails, not_allowed_emails
 
 
 def get_crowd_config():
