@@ -26,29 +26,15 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-CROWD_PROD = {
-    'url': 'http://login.q.wfp.org/crowd/rest',  # your CROWD rest API url
-    'app_name': 'mdca-test',    # appname, registered with CROWD
-    'password': 'mdca-test',    # correct password for provided appname
-    'superuser': False,          # if set makes CROWD-authorized users superusers;
-    'staffuser': True,          # BE CAREFUL WITH THIS PARAMETER!
-    'group-import': False,      # Not Yet Implemented
-    'sso': False,               # Use SSO or not
-    'validation': '10.11.40.34',
+CROWD = {
+    'url': 'http://your.crowd.url:port/crowd/rest',         # your CROWD rest API url
+    'app_name': 'your-registered-crowd-application-name',   # appname, registered with CROWD
+    'password': 'application-password',                     # correct password for provided appname
+    'superuser': True,                                      # if set makes CROWD-authorized users superusers;
+    'staffuser': True,                                      # BE CAREFUL WITH THIS PARAMETER!
+    'validation':'10.11.40.34',                             # The ipaddress the Crowd server is responding to
+    'sso': False,
 }
-
-CROWD_DEV = {
-    'url': 'http://login.dev.wfptha.org/crowd/rest',  # your CROWD rest API url
-    'app_name': 'toby-test',  # appname, registered with CROWD
-    'password': 'toby-test',  # correct password for provided appname
-    'superuser': False,  # if set makes CROWD-authorized users superusers;
-    'staffuser': True,  # BE CAREFUL WITH THIS PARAMETER!
-    'group-import': False,
-    'sso': True,
-    'validation': '127.0.0.1',
-}
-# CROWD = CROWD_DEV
-CROWD = CROWD_PROD
 
 # Application definition
 
@@ -172,11 +158,11 @@ LOGGING = {
     'loggers': {
         'crowd': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+
         },
         'hello_crowd': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+
         },
 
     }

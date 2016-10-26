@@ -7,7 +7,8 @@ from hello_crowd.form import UsersForm
 
 def hello_view(request):
     try:
-        print(request.user)
+        #print(request.user)
+        a = 1
     except AttributeError:
         print('No one')
     return HttpResponse('Hello', content_type='text/plain')

@@ -17,16 +17,13 @@ def mock_get_response(*args, **kwargs):
     status_code = 0
     # json_return = {}
     if 'search.json?entity-type=user&restriction=email' in url:
-        print('email check')
         status_code = 200
         if 'search.json?entity-type=user&restriction=email%3Dadmin@test.com' in url:
-            print("Hit")
             json_return = {"expand": "user", "users": [{"link": {
                 "href": "http://login.dev.wfptha.org/crowd/rest/usermanagement/1/user?username=tobias.carlander",
                 "rel": "self"},
                 "name": "admin"}]}
         else:
-            print("Miss")
             json_return = {
                 "expand": "user",
                 "users": []
