@@ -38,7 +38,7 @@ CROWD = {
 
 # Application definition
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -49,7 +49,7 @@ INSTALLED_APPS = (
     'authentication',
     'user',
     'hello_crowd',
-)
+]
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
@@ -64,10 +64,10 @@ MIDDLEWARE_CLASSES = (
     'crowd.middleware.CrowdMiddleware',
 )
 
-AUTHENTICATION_BACKENDS = (
+AUTHENTICATION_BACKENDS = [
     'crowd.backends.CrowdBackend',
     'django.contrib.auth.backends.ModelBackend',
-)
+]
 
 ROOT_URLCONF = 'crowdtest.urls'
 
