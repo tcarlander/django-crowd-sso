@@ -286,8 +286,7 @@ class TestLogin(TestCase):
         self.mock_requests_post.return_value = r
         response = self.client.post('/admin/login/?next=/admin/',
                                     {'username': 'admin@test.com', 'password': '55555555'})
-
         emails = ["admin@test.com", "b@b.c", "c@b.c"]
-        added, not_added = import_users_from_email_list(emails)
+        added, not_added, blocked = import_users_from_email_list(emails)
         self.assertEquals(added, ['admin'])
         self.assertEquals(not_added, ['b@b.c', 'c@b.c'])
