@@ -1,12 +1,13 @@
 django-crowd
 ============
-Simple Atlasian CROWD authentication backend for Django with SSO support
+Simple Atlassian CROWD authentication backend for Django with SSO support
 
 
 
 Configuration:
 ==============
 Put a CROWD configuration in your `settings.py`:
+
 
 ```
 CROWD = {
