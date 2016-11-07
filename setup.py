@@ -7,7 +7,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='wfp-django-crowd',
-    version='0.54',
+    version='0.55',
     description='Atlassina Crowd integration for Django',
     packages=['crowd', ],
     install_requires=['django', 'requests', 'simplejson', 'pandoc'],
