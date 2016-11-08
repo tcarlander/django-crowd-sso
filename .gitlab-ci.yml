@@ -3,4 +3,4 @@ stages:
 test:
   stage: crowd
   script:
-    - "tox"
+    - "ls"
