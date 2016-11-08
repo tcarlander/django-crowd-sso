@@ -1,6 +1,6 @@
 stages:
-  - test
+  - crowd
 test:
-  stage: test
+  stage: crowd
   script:
     - "py.test"
