@@ -3,5 +3,5 @@ stages:
 test:
   stage: crowd
   script:
-    - "pip install tox"
+    - "pip3 install tox"
     - "tox"
