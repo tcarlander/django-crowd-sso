@@ -33,8 +33,9 @@ CROWD = {
     'superuser': True,                                      # if set makes CROWD-authorized users superusers;
     'staffuser': True,                                      # BE CAREFUL WITH THIS PARAMETER!
     'validation':'10.11.40.34',                             # The ipaddress the Crowd server is responding to
-    'sso': False,
-    'blocked_creation_domains': ['@wfp.org']                # Domains not allowed to be created in the local db
+    'sso': False,                                           # Use SSO or not
+    'blocked_creation_domains': ['@wfp.org'],               # Domains not allowed to be created in the local db
+    'crowd_group': 'CrowdUser',                            # add crowd users to this group
 }
 
 # Application definition

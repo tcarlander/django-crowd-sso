@@ -5,6 +5,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 import requests
 from django.conf import settings
+from django.contrib.auth.models import Group
+
 
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 my_timeout = 5
@@ -42,6 +44,14 @@ class CrowdBackend(ModelBackend):
                 logger.debug("Create User")
                 user = self.create_user_from_crowd(username)
             user.crowdtoken = session_crowd
+            crowd_config = get_crowd_config()
+            group_name = crowd_config.get('crowd_group', 'CrowdUser')
+            if user.groups.filter(name=group_name).exists():
+                pass
+            else:
+                crowd_group, created = Group.objects.get_or_create(name=group_name)
+                user.groups.add(crowd_group)
+                user.save()
             return user
         else:
             return None
@@ -141,6 +151,11 @@ class CrowdBackend(ModelBackend):
         user.is_active = True
         user.is_superuser = crowd_config.get('superuser', False)
         user.is_staff = crowd_config.get('staffuser', False)
+        # add user to the group CrowdUser
+        # Retrieve group to add to (From Settings)
+        group_name = crowd_config.get('crowd_group', 'CrowdUser')
+        crowd_group, created = Group.objects.get_or_create(name=group_name)
+        user.groups.add(crowd_group)
         user.save()
         return user
 
