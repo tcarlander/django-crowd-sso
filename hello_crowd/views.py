@@ -26,12 +26,15 @@ def make_this_list(request):
             email_list = form.cleaned_data['email_list']
 
             emails = email_list.split()
-            FoundOrAdded, NotFound = import_users_from_email_list(emails)
+            FoundOrAdded, NotFound, NotAllowed = import_users_from_email_list(emails)
             print("Added")
             for user in FoundOrAdded:
                 print(user)
             print("NotFound")
             for email in NotFound:
+                print(email)
+            print("NotAllowed")
+            for email in NotAllowed:
                 print(email)
     else:
         form = UsersForm()

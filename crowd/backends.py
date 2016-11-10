@@ -5,6 +5,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 import requests
 from django.conf import settings
+from django.contrib.auth.models import Group
+
 
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 my_timeout = 5
@@ -42,6 +44,14 @@ class CrowdBackend(ModelBackend):
                 logger.debug("Create User")
                 user = self.create_user_from_crowd(username)
             user.crowdtoken = session_crowd
+            crowd_config = get_crowd_config()
+            group_name = crowd_config.get('crowd_group', 'CrowdUser')
+            if user.groups.filter(name=group_name).exists():
+                pass
+            else:
+                crowd_group, created = Group.objects.get_or_create(name=group_name)
+                user.groups.add(crowd_group)
+                user.save()
             return user
         else:
             return None
@@ -141,6 +151,11 @@ class CrowdBackend(ModelBackend):
         user.is_active = True
         user.is_superuser = crowd_config.get('superuser', False)
         user.is_staff = crowd_config.get('staffuser', False)
+        # add user to the group CrowdUser
+        # Retrieve group to add to (From Settings)
+        group_name = crowd_config.get('crowd_group', 'CrowdUser')
+        crowd_group, created = Group.objects.get_or_create(name=group_name)
+        user.groups.add(crowd_group)
         user.save()
         return user
 
@@ -157,8 +172,9 @@ def import_users_from_email_list(list_of_emails):
     found_and_added_users = []
     not_found_emails = []
     not_allowed_emails = []
-    # TODO add to settings
-    domains_not_allowed = ['@wfp.org']
+    # TODO Move to settings
+    crowd_config = get_crowd_config()
+    domains_not_allowed = crowd_config.get('blocked_creation_domains', ['@wfp.org'])
     for email in list_of_emails:
         user_name = CrowdBackend.get_username_from_email(email)
         if email == user_name:

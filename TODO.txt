@@ -1,3 +1,4 @@
 1: Full documentation
 2: Extend testing to SSO
-3: Extend Testing fo import
+3: Extend Testing of import
+4: Add group import option
