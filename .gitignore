@@ -15,3 +15,4 @@ htmlcov/*
 django_crowd.egg-info
 local_setting.py
 .cache
+/django_crowd.egg-info/
