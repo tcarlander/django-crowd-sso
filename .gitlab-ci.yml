@@ -1,7 +1,0 @@
-stages:
-  - crowd
-test:
-  stage: crowd
-  script:
-    - "pip3 install tox"
-    - "tox"
