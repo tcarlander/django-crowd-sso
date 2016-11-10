@@ -19,6 +19,7 @@ CROWD = {
     'validation':'10.11.40.34',                             # The ipaddress the Crowd server is responding to
     'sso': False,                                           # Use SSO 
     'blocked_creation_domains': ['@wfp.org']                # Domains not allowed to be created in the local db
+    'crowd_group': 'CrowdUser'                              # Group that all imported users are placed in
 }
 ```
 
@@ -49,6 +50,7 @@ test currenly does not cover the SSO
 
 **Version 0.56**
 
+Add users "Pulled" from crowd to the group defined in crowd_group, default "CrowdUser" 
 New setting 
 'blocked_creation_domains': ['@wfp.org']                # Domains not allowed to be created in the local db
 
