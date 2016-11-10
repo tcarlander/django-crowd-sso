@@ -17,7 +17,8 @@ CROWD = {
     'superuser': True,                                      # if set makes CROWD-authorized users superusers;
     'staffuser': True,                                      # BE CAREFUL WITH THIS PARAMETER!
     'validation':'10.11.40.34',                             # The ipaddress the Crowd server is responding to
-    'sso': False,
+    'sso': False,                                           # Use SSO 
+    'blocked_creation_domains': ['@wfp.org']                # Domains not allowed to be created in the local db
 }
 ```
 
@@ -39,12 +40,18 @@ AUTHENTICATION_BACKENDS list to make sure you always start with crowd authentica
 a local account.
 
 simple test:
-`./manage.py test`
+`py.test`
 
 Tox test:
 `tox`
 
 test currenly does not cover the SSO
+
+**Version 0.56**
+
+New setting 
+'blocked_creation_domains': ['@wfp.org']                # Domains not allowed to be created in the local db
+
 
 **New For version 0.52**
 
