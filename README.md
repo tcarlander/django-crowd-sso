@@ -14,11 +14,11 @@ CROWD = {
     'url': 'http://your.crowd.url:port/crowd/rest',         # your CROWD rest API url
     'app_name': 'your-registered-crowd-application-name',   # appname, registered with CROWD
     'password': 'application-password',                     # correct password for provided appname
-    'superuser': True,                                      # if set makes CROWD-authorized users superusers;
-    'staffuser': True,                                      # BE CAREFUL WITH THIS PARAMETER!
+    'superuser': False,                                     # if True makes CROWD-imported users superusers
+    'staffuser': False,                                     # if True makes CROWD-imported users staffuser
     'validation':'10.11.40.34',                             # The ipaddress the Crowd server is responding to
-    'sso': False,                                           # Use SSO 
-    'blocked_creation_domains': ['@wfp.org']                # Domains not allowed to be created in the local db
+    'sso': False,                                           # TRurn on SSO
+    'blocked_creation_domains': ['@example.org']            # Domains not allowed to be created in the local db
     'crowd_group': 'CrowdUser'                              # Group that all imported users are placed in
 }
 ```
@@ -46,33 +46,33 @@ simple test:
 Tox test:
 `tox`
 
-test currenly does not cover the SSO
+test currently does not cover the SSO 
 
 **Version 0.56**
 
 Add users "Pulled" from crowd to the group defined in crowd_group, default "CrowdUser" 
 New setting 
-'blocked_creation_domains': ['@wfp.org']                # Domains not allowed to be created in the local db
+'disallowed_creation_domains': ['@wfp.org']                # Domains not allowed to be created in the local db
 
 
 **New For version 0.52**
 
-Added disalowed emails to the import first version hardcoded @wfp.org, will be a setting in future
+Added disallowed emails to the import first version hardcoded @example.org, will be a setting in future
 
-any email with @wfp.org but not in crowd will be in the dissalowed list
+any email with @wfp.org but not in crowd will be in the disallowed list
  
 example of use
 
 * User with email a@b.c is already user 'a' in the local db as a django created user
 * User with email b@c.c is already user 'b' in the local db as a imported user from Crowd
-* User with email c@a.b is no already user in the local db but exists in Crowd so it will be imported as user 'b'
+* User with email c@a.b is no already user in the local db but exists in Crowd so it will be imported as user 'c'
 * User with email d@e.f is not in local db nor in Crowd
-* User with email e@wfp.org is on dissalowed list 
+* User with email e@example.org has a domain that is on the disallowed list 
 
 ```
 from crowd.backends import import_users_from_email_list
 
-        emails = ["a@b.c", "b@c.c", "c@a.b", "d@e.f","e@wfp.org"]
+        emails = ["a@b.c", "b@c.c", "c@a.b", "d@e.f","e@example.org"]
         added_or_found, not_found, not_alowed = import_users_from_email_list(emails)
         print(added_or_found)
         print(not_found)
@@ -84,7 +84,7 @@ Resulting printout:
 
 ['d@e.f']
 
-['e@wfp.org']
+['e@example.org']
 ```
 
 

@@ -174,7 +174,7 @@ def import_users_from_email_list(list_of_emails):
     not_allowed_emails = []
     # TODO Move to settings
     crowd_config = get_crowd_config()
-    domains_not_allowed = crowd_config.get('blocked_creation_domains', ['@wfp.org'])
+    domains_not_allowed = crowd_config.get('disallowed_creation_domains', ['@wfp.org'])
     for email in list_of_emails:
         user_name = CrowdBackend.get_username_from_email(email)
         if email == user_name:

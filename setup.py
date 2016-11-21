@@ -18,12 +18,12 @@ setup(
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: Creative Commons Attribution-Noncommercial-Share Alike license',
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
     long_description=README,
-    keywords='django crowd users',
+    keywords='django crowd users authentication sso',
 
 )
