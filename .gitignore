@@ -1,0 +1,10 @@
+.coverage
+*.pyc
+*.py,cover
+*.sqlite3
+htmlcov/*
+**.idea**
+local_setting.py
+.cache
+*.egg-info
+__pycache__
