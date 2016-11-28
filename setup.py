@@ -8,10 +8,10 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 setup(
     name='django-crowd-sso',
     version='0.56',
-    description='Atlassina Crowd integration for Django',
+    description='Atlassina Crowd integration for Django with SSO',
     packages=['crowd', ],
     install_requires=['django', 'requests', 'simplejson'],
-    url='https://github.com/WFP-BKK/django-crowd',
+    url='https://github.com/WFP-BKK/django-crowd-sso',
     author='Tobias Carlander',
     author_email='tobias.carlander@wfp.org',
     license='Creative Commons Attribution-Noncommercial-Share Alike license',
