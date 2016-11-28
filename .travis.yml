@@ -3,8 +3,7 @@ python:
   - "3.5"
 
 env:
-  - DJANGO_VERSION=1.9
-  - DJANGO_SETTINGS_MODULE=crowdtest.settings
+  - DJANGO_VERSION=1.9 DJANGO_SETTINGS_MODULE=crowdtest.settings
 
 before_install:
     - pip install pytest
