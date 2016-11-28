@@ -5,10 +5,10 @@ python:
 env:
   - DJANGO_VERSION=1.9
 before_install:
-    - pip install pytest pytest-cov
+    - pip install pytest
 # command to install dependencies
 install:
-  - pip install -q Django==$DJANGO_VERSION
-  - python setup.py -q install
+  - pip3 install -q Django==$DJANGO_VERSION
+  - python3 setup.py -q install
   # command to run tests
 script: py.test
