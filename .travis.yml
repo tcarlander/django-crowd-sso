@@ -8,6 +8,9 @@ env:
 before_install:
     - pip install pytest
     - export DJANGO_SETTINGS_MODULE=crowdtest.settings
+    - export PYTHONPATH=$HOME/builds/WFP-BKK/django-crowd-sso
+    - export PIP_USE_MIRRORS=true
+
 # command to install dependencies
 
 install:
