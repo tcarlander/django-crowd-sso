@@ -3,7 +3,18 @@ python:
   - "3.4"
 
 env:
-  - DJANGO_VERSION=1.10
+    - TOX_ENV=py34-django18
+    - TOX_ENV=py34-django19
+    - TOX_ENV=py34-django110
+    - TOX_ENV=py34-djangomaster
+    - TOX_ENV=py35-django18
+    - TOX_ENV=py35-django19
+    - TOX_ENV=py35-django110
+    - TOX_ENV=py35-djangomaster
+    - TOX_ENV=py36-django18
+    - TOX_ENV=py36-django19
+    - TOX_ENV=py36-django110
+    - TOX_ENV=py36-djangomaster
 
 before_install:
     - pip install pytest
@@ -13,7 +24,9 @@ before_install:
 # command to install dependencies
 
 install:
-  - pip install -q Django==$DJANGO_VERSION djangorestframework
-  - python setup.py -q install
+  #- pip install -q Django==$DJANGO_VERSION djangorestframework
+   - pip install tox
+  #- python setup.py -q install
   # command to run tests
-script: python manage.py test
+script:
+  - tox -e $TOX_ENV
