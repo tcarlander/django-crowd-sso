@@ -13,8 +13,7 @@ before_install:
 # command to install dependencies
 
 install:
-  - pip install -q Django==$DJANGO_VERSION
-  - pip install -q rest_framework
+  - pip install -q Django==$DJANGO_VERSION django-rest-framework
   - python setup.py -q install
   # command to run tests
 script: python manage.py test
