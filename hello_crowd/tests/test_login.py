@@ -6,7 +6,7 @@ except ImportError:
     from mock import patch, Mock
 from django.contrib.auth import get_user_model
 import logging
-
+User = get_user_model()
 logger = logging.getLogger(__name__)
 
 
@@ -87,7 +87,6 @@ def mock_get_response(*args, **kwargs):
 
 def mock_local_user(username, password=''):
     global user
-    User = get_user_model()
 
     if username == 'admin':
         user = User.objects.create_user('admin', 'admin@test.com')
