@@ -3,10 +3,11 @@ python:
   - "3.4"
 
 env:
-  - DJANGO_VERSION=1.10 DJANGO_SETTINGS_MODULE=crowdtest.settings
+  - DJANGO_VERSION=1.10
 
 before_install:
     - pip install pytest
+    - export DJANGO_SETTINGS_MODULE=crowdtest.settings
 # command to install dependencies
 
 install:
