@@ -48,6 +48,10 @@ Tox test:
 
 test currently does not cover the SSO 
 
+** Version X **
+Adding support for django tenant system so the crowd_group will be in the public schema
+
+    
 **Version 0.56**
 
 Add users "Pulled" from crowd to the group defined in crowd_group, default "CrowdUser" 
