@@ -1,5 +1,5 @@
-django-crowd
-============
+django-crowd-sso |Build Status|
+===============================
 
 Simple Atlassian CROWD authentication backend for Django with SSO
 support
@@ -66,7 +66,7 @@ setting NotPublicSchema == True
 
 Add users "Pulled" from crowd to the group defined in crowd\_group,
 default "CrowdUser" New setting 'disallowed\_creation\_domains':
-['@wfp.org'] # Domains not allowed to be created in the local db
+['@wfp.org']
 
 **New For version 0.52**
 
@@ -118,3 +118,6 @@ gbezyuk@gmail.com at 27.08.2012
 
 Refactored, updated for Django 1.9 and added SSO and other features by
 Tobias Carlander tobias.carlander@wfp.org at 2015/03/25
+
+.. |Build Status| image:: https://travis-ci.org/WFP-BKK/django-crowd-sso.svg?branch=master
+   :target: https://travis-ci.org/WFP-BKK/django-crowd-sso
