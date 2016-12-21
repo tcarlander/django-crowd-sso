@@ -3,7 +3,6 @@ django-crowd
 Simple Atlassian CROWD authentication backend for Django with SSO support
 
 
-
 Configuration:
 ==============
 Put a CROWD configuration in your `settings.py`:
@@ -18,8 +17,9 @@ CROWD = {
     'staffuser': False,                                     # if True makes CROWD-imported users staffuser
     'validation':'10.11.40.34',                             # The ipaddress the Crowd server is responding to
     'sso': False,                                           # TRurn on SSO
-    'blocked_creation_domains': ['@example.org']            # Domains not allowed to be created in the local db
-    'crowd_group': 'CrowdUser'                              # Group that all imported users are placed in
+    'blocked_creation_domains': ['@example.org'],           # Domains not allowed to be created in the local db
+    'crowd_group': 'CrowdUser',                             # Group that all imported users are placed in
+    'DTS_not_use_public_schema': False                      # If DTS is installed don't save users and groups in Public schema
 }
 ```
 
@@ -32,9 +32,17 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 ```
+ 
 
+Add  `crowd.middleware.CookieMiddleware` to the Middleware 
+```
+MIDDLEWARE_CLASSES = (
+...
+      'crowd.middleware.CookieMiddleware'
+...
+)
 
-Add     'crowd.middleware.CookieMiddleware' to the Middleware 
+```
 
 
 AUTHENTICATION_BACKENDS list to make sure you always start with crowd authentication before falling over to
@@ -48,8 +56,14 @@ Tox test:
 
 test currently does not cover the SSO 
 
-** Version X **
-Adding support for django tenant system so the crowd_group will be in the public schema
+
+***Release Notes***
+==================
+
+**Version 0.57**
+
+Added support for Django Tenant Schema (django-tenant-schemas) 
+Will create crowd_group in the public schema if DTS is installed, unless setting NotPublicSchema == True
 
     
 **Version 0.56**

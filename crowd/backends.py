@@ -7,6 +7,7 @@ import requests
 from django.conf import settings
 from django.contrib.auth.models import Group
 from requests.exceptions import ConnectionError
+
 try:
     from tenant_schemas import get_public_schema_name
     from tenant_schemas.utils import schema_context
@@ -53,12 +54,21 @@ class CrowdBackend(ModelBackend):
             user.crowdtoken = session_crowd
             crowd_config = get_crowd_config()
             group_name = crowd_config.get('crowd_group', 'CrowdUser')
-            if user.groups.filter(name=group_name).exists():
-                pass
+            if ts_installed and not (crowd_config.get('DTS_not_use_public_schema', 'CrowdUser')):
+                with schema_context(get_public_schema_name()):
+                    if user.groups.filter(name=group_name).exists():
+                        pass
+                    else:
+                        crowd_group, created = Group.objects.get_or_create(name=group_name)
+                        user.groups.add(crowd_group)
+                        user.save()
             else:
-                crowd_group, created = Group.objects.get_or_create(name=group_name)
-                user.groups.add(crowd_group)
-                user.save()
+                if user.groups.filter(name=group_name).exists():
+                    pass
+                else:
+                    crowd_group, created = Group.objects.get_or_create(name=group_name)
+                    user.groups.add(crowd_group)
+                    user.save()
             return user
         else:
             return None
@@ -89,7 +99,6 @@ class CrowdBackend(ModelBackend):
         :return: (status_code, token)
         """
         crowd_config = get_crowd_config()
-        r = None
         url = crowd_config['url'] + '/usermanagement/latest/session.json'
         json_object = {'username': username,
                        'password': password,
@@ -159,7 +168,8 @@ class CrowdBackend(ModelBackend):
         user.is_superuser = crowd_config.get('superuser', False)
         user.is_staff = crowd_config.get('staffuser', False)
         group_name = crowd_config.get('crowd_group', 'CrowdUser')
-        if ts_installed:
+
+        if ts_installed and not(crowd_config.get('DTS_not_use_public_schema', 'CrowdUser')):
             with schema_context(get_public_schema_name()):
                 crowd_group, created = Group.objects.get_or_create(name=group_name)
                 user.groups.add(crowd_group)
