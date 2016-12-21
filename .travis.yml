@@ -14,7 +14,7 @@ before_install:
 
 install:
   #- pip install -q Django==$DJANGO_VERSION djangorestframework
-   -  pip install tox-travis
+   -  pip install tox-travis coveralls
   #- python setup.py -q install
   # command to run tests
 script:
