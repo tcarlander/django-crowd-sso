@@ -15,7 +15,7 @@ setup(
     name='django-crowd-sso',
     version='0.57',
     description='Atlassian Crowd integration for Django with SSO',
-    packages=['crowd', ],
+    packages=['crowd'],
     install_requires=['django', 'requests', 'simplejson'],
     url='https://github.com/WFP-BKK/django-crowd-sso',
     author='Tobias Carlander',
