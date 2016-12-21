@@ -6,6 +6,14 @@ from django.contrib.auth.backends import ModelBackend
 import requests
 from django.conf import settings
 from django.contrib.auth.models import Group
+from requests.exceptions import ConnectionError
+
+try:
+    from tenant_schemas import get_public_schema_name
+    from tenant_schemas.utils import schema_context
+    ts_installed = True
+except:
+    ts_installed = False
 
 
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
@@ -46,12 +54,21 @@ class CrowdBackend(ModelBackend):
             user.crowdtoken = session_crowd
             crowd_config = get_crowd_config()
             group_name = crowd_config.get('crowd_group', 'CrowdUser')
-            if user.groups.filter(name=group_name).exists():
-                pass
+            if ts_installed and not (crowd_config.get('DTS_not_use_public_schema', 'CrowdUser')):
+                with schema_context(get_public_schema_name()):
+                    if user.groups.filter(name=group_name).exists():
+                        pass
+                    else:
+                        crowd_group, created = Group.objects.get_or_create(name=group_name)
+                        user.groups.add(crowd_group)
+                        user.save()
             else:
-                crowd_group, created = Group.objects.get_or_create(name=group_name)
-                user.groups.add(crowd_group)
-                user.save()
+                if user.groups.filter(name=group_name).exists():
+                    pass
+                else:
+                    crowd_group, created = Group.objects.get_or_create(name=group_name)
+                    user.groups.add(crowd_group)
+                    user.save()
             return user
         else:
             return None
@@ -77,12 +94,11 @@ class CrowdBackend(ModelBackend):
     def _call_crowd_session(username: str, password: str):
         """
         Calls CROWD to authenticate user, return CROWD Token and return code
-        CROWD Token will be None if failed to authenticate
+        CROWD Token will be None if failed to authenticate and if the crowd server is not reachable
         :rtype: (string, string)
         :return: (status_code, token)
         """
         crowd_config = get_crowd_config()
-
         url = crowd_config['url'] + '/usermanagement/latest/session.json'
         json_object = {'username': username,
                        'password': password,
@@ -92,16 +108,16 @@ class CrowdBackend(ModelBackend):
                                 'value': crowd_config['validation']}
                            ]}
                        }
-        r = requests.post(url,
+        try:
+            r = requests.post(url,
                           auth=(crowd_config['app_name'],
                                 crowd_config['password']),
                           data=json.dumps(json_object),
                           headers={'content-type': 'application/json',
                                    'Accept': 'application/json'}, timeout=my_timeout)
-        try:
             token = r.json()['token']
-        except KeyError:  # pragma: no cover
-            token = None
+        except (ConnectionError, KeyError) as e:
+            return 503, None
         return r.status_code, token
 
     @staticmethod
@@ -151,12 +167,17 @@ class CrowdBackend(ModelBackend):
         user.is_active = True
         user.is_superuser = crowd_config.get('superuser', False)
         user.is_staff = crowd_config.get('staffuser', False)
-        # add user to the group CrowdUser
-        # Retrieve group to add to (From Settings)
         group_name = crowd_config.get('crowd_group', 'CrowdUser')
-        crowd_group, created = Group.objects.get_or_create(name=group_name)
-        user.groups.add(crowd_group)
-        user.save()
+
+        if ts_installed and not(crowd_config.get('DTS_not_use_public_schema', 'CrowdUser')):
+            with schema_context(get_public_schema_name()):
+                crowd_group, created = Group.objects.get_or_create(name=group_name)
+                user.groups.add(crowd_group)
+                user.save()
+        else:
+            crowd_group, created = Group.objects.get_or_create(name=group_name)
+            user.groups.add(crowd_group)
+            user.save()
         return user
 
 
@@ -172,7 +193,6 @@ def import_users_from_email_list(list_of_emails):
     found_and_added_users = []
     not_found_emails = []
     not_allowed_emails = []
-    # TODO Move to settings
     crowd_config = get_crowd_config()
     domains_not_allowed = crowd_config.get('disallowed_creation_domains', ['@wfp.org'])
     for email in list_of_emails:
