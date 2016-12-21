@@ -7,7 +7,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-crowd-sso',
-    version='0.56',
+    version='0.57',
     description='Atlassina Crowd integration for Django',
     packages=['crowd', ],
     install_requires=['django', 'requests', 'simplejson'],
