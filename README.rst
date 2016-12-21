@@ -16,11 +16,12 @@ Put a CROWD configuration in your ``settings.py``:
         'app_name': 'your-registered-crowd-application-name',   # appname, registered with CROWD
         'password': 'application-password',                     # correct password for provided appname
         'superuser': False,                                     # if True makes CROWD-imported users superusers
-        'staffuser': True,                                      # if True makes CROWD-imported users staffuser
+        'staffuser': False,                                     # if True makes CROWD-imported users staffuser
         'validation':'10.11.40.34',                             # The ipaddress the Crowd server is responding to
         'sso': False,                                           # TRurn on SSO
-        'blocked_creation_domains': ['@example.org']            # Domains not allowed to be created in the local db
-        'crowd_group': 'CrowdUser'                              # Group that all imported users are placed in
+        'blocked_creation_domains': ['@example.org'],           # Domains not allowed to be created in the local db
+        'crowd_group': 'CrowdUser',                             # Group that all imported users are placed in
+        'DTS_not_use_public_schema': False                      # If DTS is installed don't save users and groups in Public schema
     }
 
 Add ``crowd.CrowdBackend`` in your ``AUTHENTICATION_BACKENDS`` settings
@@ -33,7 +34,15 @@ list. Put it first so that password are only kept in CROWD:
         'django.contrib.auth.backends.ModelBackend',
     )
 
-Add 'crowd.middleware.CookieMiddleware' to the Middleware
+Add ``crowd.middleware.CrowdMiddleware`` to the Middleware
+
+::
+
+    MIDDLEWARE_CLASSES = (
+    ...
+              'crowd.middleware.CrowdMiddleware',
+    ...
+    )
 
 AUTHENTICATION\_BACKENDS list to make sure you always start with crowd
 authentication before falling over to a local account.
@@ -42,7 +51,16 @@ simple test: ``py.test``
 
 Tox test: ``tox``
 
-test currenly does not cover the SSO
+test currently does not cover the SSO
+
+***Release Notes***
+===================
+
+**Version 0.57**
+
+Added support for Django Tenant Schema (django-tenant-schemas) Will
+create crowd\_group in the public schema if DTS is installed, unless
+setting NotPublicSchema == True
 
 **Version 0.56**
 

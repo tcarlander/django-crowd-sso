@@ -34,11 +34,11 @@ AUTHENTICATION_BACKENDS = (
 ```
  
 
-Add  `crowd.middleware.CookieMiddleware` to the Middleware 
+Add  `crowd.middleware.CrowdMiddleware` to the Middleware 
 ```
 MIDDLEWARE_CLASSES = (
 ...
-      'crowd.middleware.CookieMiddleware'
+          'crowd.middleware.CrowdMiddleware',
 ...
 )
 
