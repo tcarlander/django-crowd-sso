@@ -1,4 +1,4 @@
-django-crowd-sso [![Build Status](https://travis-ci.org/WFP-BKK/django-crowd-sso.svg?branch=master)](https://travis-ci.org/WFP-BKK/django-crowd-sso)
+django-crowd-sso [![Build Status](https://travis-ci.org/WFP-BKK/django-crowd-sso.svg?branch=master)](https://travis-ci.org/WFP-BKK/django-crowd-sso) [![Coverage Status](https://coveralls.io/repos/github/WFP-BKK/django-crowd-sso/badge.svg?branch=master)](https://coveralls.io/github/WFP-BKK/django-crowd-sso?branch=master) 
 ================
 Simple Atlassian CROWD authentication backend for Django with SSO support
 
