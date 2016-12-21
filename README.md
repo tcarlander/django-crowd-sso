@@ -1,5 +1,5 @@
-django-crowd
-============
+django-crowd-sso [![Build Status](https://travis-ci.org/WFP-BKK/django-crowd-sso.svg?branch=master)](https://travis-ci.org/WFP-BKK/django-crowd-sso)
+================
 Simple Atlassian CROWD authentication backend for Django with SSO support
 
 
@@ -70,7 +70,7 @@ Will create crowd_group in the public schema if DTS is installed, unless setting
 
 Add users "Pulled" from crowd to the group defined in crowd_group, default "CrowdUser" 
 New setting 
-'disallowed_creation_domains': ['@wfp.org']                # Domains not allowed to be created in the local db
+'disallowed_creation_domains': ['@wfp.org']
 
 
 **New For version 0.52**
