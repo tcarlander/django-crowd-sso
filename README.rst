@@ -53,8 +53,8 @@ Tox test: ``tox``
 
 test currently does not cover the SSO
 
-***Release Notes***
-===================
+**Release Notes**
+=================
 
 **Version 0.57**
 
