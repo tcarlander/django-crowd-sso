@@ -26,3 +26,6 @@ script:
   - tox
 after_success:
   - coveralls
+
+   allow_failures:
+        - env: DJANGO=1.8
