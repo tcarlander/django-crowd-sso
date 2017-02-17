@@ -2,8 +2,13 @@ language: python
 python:
   - "3.4"
   - "3.5"
-  - "3.6-dev" # 3.6 development branch
+  - "3.6" # 3.6 development branch
 
+env:
+  - DJANGO="1.8"
+  - DJANGO="1.9"
+  - DJANGO="1.10"
+  - DJANGO="1.11"
 
 before_install:
     - pip install pytest
