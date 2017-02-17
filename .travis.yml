@@ -5,27 +5,24 @@ python:
   - "3.6" # 3.6 development branch
 
 env:
-  - DJANGO="1.8"
-  - DJANGO="1.9"
-  - DJANGO="1.10"
-  - DJANGO="1.11"
+  - DJANGO=1.8
+  - DJANGO=1.9
+  - DJANGO=1.10
+  - DJANGO=1.11
 
 before_install:
     - pip install pytest
     - export DJANGO_SETTINGS_MODULE=crowdtest.settings
     - export PYTHONPATH=$HOME/builds/WFP-BKK/django-crowd-sso
 
-# command to install dependencies
-
 install:
-  #- pip install -q Django==$DJANGO_VERSION djangorestframework
    -  pip install tox-travis coveralls
-  #- python setup.py -q install
-  # command to run tests
+
 script:
   - tox
+
 after_success:
   - coveralls
 
-   allow_failures:
-        - env: DJANGO=1.8
+allow_failures:
+    - env: DJANGO=1.8
