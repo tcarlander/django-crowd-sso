@@ -25,4 +25,4 @@ after_success:
   - coveralls
 matrix:
   allow_failures:
-    - env: DJANGO=1.8
+    - env: DJANGO=1.11

@@ -1,4 +1,6 @@
+import django
 from django.test import TestCase
+import unittest
 
 try:
     from unittest.mock import patch, Mock
@@ -121,6 +123,7 @@ class TestLogin(TestCase):
         self.mock_requests_delete = patch_requests_delete.start()
         self.addCleanup(patch_requests_delete.stop)
 
+    @unittest.skipIf(django.VERSION[:2], (1, 8))
     def test_not_logged_in(self):
         response = self.client.get('/admin/')
         self.assertEqual(response.status_code, 302)
@@ -130,6 +133,7 @@ class TestLogin(TestCase):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
 
+    @unittest.skipIf(django.VERSION[:2], (1, 8))
     def test_get_homepage_login_req(self):
         response = self.client.get('/l')
         self.assertEqual(response.status_code, 302)
@@ -144,6 +148,7 @@ class TestLogin(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['Location'], '/l')
 
+    @unittest.skipIf(django.VERSION[:2], (1, 8))
     def test_login_sucsessful_with_existing_crowd_user(self):
         r = Mock()
         r.status_code = 201
@@ -157,6 +162,7 @@ class TestLogin(TestCase):
         response2 = self.client.get('/admin/')
         self.assertEqual(response2.status_code, 200)
 
+    @unittest.skipIf(django.VERSION[:2], (1, 8))
     def test_login_sucsessful_with_existing_crowd_user_using_email(self):
         r = Mock()
         r.status_code = 201
@@ -171,6 +177,7 @@ class TestLogin(TestCase):
         response2 = self.client.get('/admin/')
         self.assertEqual(response2.status_code, 200)
 
+    @unittest.skipIf(django.VERSION[:2], (1, 8))
     def test_login_sucsessful_with_non_existing_crowd_user(self):
         self.mock_requests_get.side_effect = mock_get_response
         r = Mock()
@@ -183,6 +190,7 @@ class TestLogin(TestCase):
         response2 = self.client.get('/admin/')
         self.assertEqual(response2.status_code, 200)
 
+    @unittest.skipIf(django.VERSION[:2], (1, 8))
     def test_login_sucsessful_with_non_existing_crowd_user_using_email(self):
         self.mock_requests_get.side_effect = mock_get_response
         r = Mock()
@@ -193,6 +201,137 @@ class TestLogin(TestCase):
                                     {'username': 'admin@test.com', 'password': '55555555'})
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['Location'], '/admin/')
+        response2 = self.client.get('/admin/')
+        self.assertEqual(response2.status_code, 200)
+
+    @unittest.skipIf(django.VERSION[:2], (1, 8))
+    def test_login_sucsessful_with_non_existing_crowd_user(self):
+        self.mock_requests_get.side_effect = mock_get_response
+        r = Mock()
+        r.status_code = 201
+        r.json.return_value = {"token": "VALID_TOKEN"}
+        self.mock_requests_post.return_value = r
+        response = self.client.post('/admin/login/?next=/admin/', {'username': 'admin', 'password': '55555555'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], '/admin/')
+        response2 = self.client.get('/admin/')
+        self.assertEqual(response2.status_code, 200)
+
+    @unittest.skipIf(django.VERSION[:2], (1, 8))
+    def test_login_sucsessful_with_non_existing_crowd_user_using_email(self):
+        self.mock_requests_get.side_effect = mock_get_response
+        r = Mock()
+        r.status_code = 201
+        r.json.return_value = {"token": "VALID_TOKEN"}
+        self.mock_requests_post.return_value = r
+        response = self.client.post('/admin/login/?next=/admin/',
+                                    {'username': 'admin@test.com', 'password': '55555555'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], '/admin/')
+        response2 = self.client.get('/admin/')
+        self.assertEqual(response2.status_code, 200)
+
+    @unittest.skipUnless(django.VERSION[:2] < (1, 8), "Only In 1.8")
+    def test_not_logged_in(self):
+        response = self.client.get('/admin/')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], 'http://testserver/admin/login/?next=/admin/')
+
+    @unittest.skipUnless(django.VERSION[:2] < (1, 8), "Only In 1.8")
+    def test_get_homepage_login_req(self):
+        response = self.client.get('/l')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], 'http://testserver/admin/login/?next=/l')
+        r = Mock()
+        r.status_code = 201
+        r.json.return_value = {"token": "VALID_TOKEN"}
+        mock_local_user('admin')
+        self.mock_requests_post.return_value = r
+        self.mock_requests_get.side_effect = mock_get_response
+        response = self.client.post('/admin/login/?next=/l', {'username': 'admin', 'password': '55555555'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], 'http://testserver/l')
+
+    @unittest.skipUnless(django.VERSION[:2] < (1, 8), "Only In 1.8")
+    def test_login_sucsessful_with_existing_crowd_user(self):
+        r = Mock()
+        r.status_code = 201
+        r.json.return_value = {"token": "VALID_TOKEN"}
+        mock_local_user('admin')
+        self.mock_requests_post.return_value = r
+        self.mock_requests_get.side_effect = mock_get_response
+        response = self.client.post('/admin/login/?next=/admin/', {'username': 'admin', 'password': '55555555'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], 'http://testserver/admin/')
+        response2 = self.client.get('/admin/')
+        self.assertEqual(response2.status_code, 200)
+
+    @unittest.skipUnless(django.VERSION[:2] < (1, 8), "Only In 1.8")
+    def test_login_sucsessful_with_existing_crowd_user_using_email(self):
+        r = Mock()
+        r.status_code = 201
+        r.json.return_value = {"token": "VALID_TOKEN"}
+        mock_local_user('admin')
+        self.mock_requests_post.return_value = r
+        self.mock_requests_get.side_effect = mock_get_response
+        response = self.client.post('/admin/login/?next=/admin/',
+                                    {'username': 'admin@test.com', 'password': '55555555'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], 'http://testserver/admin/')
+        response2 = self.client.get('/admin/')
+        self.assertEqual(response2.status_code, 200)
+
+    @unittest.skipUnless(django.VERSION[:2] < (1, 8), "Only In 1.8")
+    def test_login_sucsessful_with_non_existing_crowd_user(self):
+        self.mock_requests_get.side_effect = mock_get_response
+        r = Mock()
+        r.status_code = 201
+        r.json.return_value = {"token": "VALID_TOKEN"}
+        self.mock_requests_post.return_value = r
+        response = self.client.post('/admin/login/?next=/admin/', {'username': 'admin', 'password': '55555555'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], 'http://testserver/admin/')
+        response2 = self.client.get('/admin/')
+        self.assertEqual(response2.status_code, 200)
+
+    @unittest.skipUnless(django.VERSION[:2] < (1, 8), "Only In 1.8")
+    def test_login_sucsessful_with_non_existing_crowd_user_using_email(self):
+        self.mock_requests_get.side_effect = mock_get_response
+        r = Mock()
+        r.status_code = 201
+        r.json.return_value = {"token": "VALID_TOKEN"}
+        self.mock_requests_post.return_value = r
+        response = self.client.post('/admin/login/?next=/admin/',
+                                    {'username': 'admin@test.com', 'password': '55555555'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], 'http://testserver/admin/')
+        response2 = self.client.get('/admin/')
+        self.assertEqual(response2.status_code, 200)
+
+    @unittest.skipUnless(django.VERSION[:2] < (1, 8), "Only In 1.8")
+    def test_login_sucsessful_with_non_existing_crowd_user(self):
+        self.mock_requests_get.side_effect = mock_get_response
+        r = Mock()
+        r.status_code = 201
+        r.json.return_value = {"token": "VALID_TOKEN"}
+        self.mock_requests_post.return_value = r
+        response = self.client.post('/admin/login/?next=/admin/', {'username': 'admin', 'password': '55555555'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], 'http://testserver/admin/')
+        response2 = self.client.get('/admin/')
+        self.assertEqual(response2.status_code, 200)
+
+    @unittest.skipUnless(django.VERSION[:2] < (1, 8), "Only In 1.8")
+    def test_login_sucsessful_with_non_existing_crowd_user_using_email(self):
+        self.mock_requests_get.side_effect = mock_get_response
+        r = Mock()
+        r.status_code = 201
+        r.json.return_value = {"token": "VALID_TOKEN"}
+        self.mock_requests_post.return_value = r
+        response = self.client.post('/admin/login/?next=/admin/',
+                                    {'username': 'admin@test.com', 'password': '55555555'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], 'http://testserver/admin/')
         response2 = self.client.get('/admin/')
         self.assertEqual(response2.status_code, 200)
 
