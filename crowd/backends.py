@@ -28,7 +28,7 @@ class CrowdBackend(ModelBackend):
     Hope you will never need opening this file looking for a bug =)
     """
 
-    def authenticate(self, username=None, password=None, email=None, **kwargs):
+    def authenticate(self, request=None, username=None, password=None, email=None, **kwargs):
         """
         Main authentication method
 
