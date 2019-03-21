@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='choice',
             name='question',
-            field=models.ForeignKey(to='hello_crowd.Question'),
+            field=models.ForeignKey(to='hello_crowd.Question',on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]
